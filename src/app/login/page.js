@@ -4,11 +4,19 @@ import { useRouter } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
 import { motion, useMotionTemplate, useMotionValue } from "framer-motion";
-import { Mail, Lock, ArrowRight, Loader2, AlertCircle, ArrowLeft } from "lucide-react";
+import {
+    Mail,
+    Lock,
+    ArrowRight,
+    Loader2,
+    AlertCircle,
+    ArrowLeft,
+    Eye,
+    EyeOff
+} from "lucide-react";
 
 // --- Components ---
 
-// 1. Spotlight Card (Visual Wrapper)
 function SpotlightCard({ children, className = "" }) {
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
@@ -41,7 +49,6 @@ function SpotlightCard({ children, className = "" }) {
     );
 }
 
-// 2. Background Pattern
 const GridBackground = () => (
     <div className="fixed inset-0 z-0 pointer-events-none bg-[#050505]">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:32px_32px]" />
@@ -50,23 +57,21 @@ const GridBackground = () => (
     </div>
 );
 
-// --- Main Page Component ---
-
 export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
     const { data: session } = useSession();
     const router = useRouter();
 
-    // Redirect if already logged in
     useEffect(() => {
         if (session?.user) {
             const roleRedirects = {
-                "admin": "/admindashboard",
-                "user": "/dashboard",
+                admin: "/admindashboard",
+                user: "/dashboard",
             };
             router.push(roleRedirects[session.user.role] || "/");
         }
@@ -89,25 +94,21 @@ export default function LoginPage() {
             return;
         }
 
-        // Handle Role Redirects logic
         const roleRedirects = {
-            "admin": "/admindashboard",
-            "user": "/dashboard",
+            admin: "/admindashboard",
+            user: "/dashboard",
         };
 
         if (result?.user?.role && roleRedirects[result.user.role]) {
             router.push(roleRedirects[result.user.role]);
         } else {
-            // Fallback if user role is not immediately available in result
-            // Usually next-auth handles session update automatically, 
-            // so we can often just wait for the useEffect hook or redirect to dashboard
             router.push("/dashboard");
         }
 
         setLoading(false);
     };
 
-    if (session) return null; // Prevent flash of login screen while redirecting
+    if (session) return null;
 
     return (
         <div className="relative min-h-screen bg-[#050505] text-slate-200 font-sans selection:bg-blue-500/30 flex items-center justify-center p-6">
@@ -125,10 +126,15 @@ export default function LoginPage() {
 
                     {/* Header */}
                     <div className="text-center mb-10">
-                        <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
+                        <h1 className="text-3xl font-bold text-white mb-2">
+                            Welcome Back
+                        </h1>
+
                         <p className="text-slate-400 text-sm">
                             Enter your credentials to access your <br />
-                            <span className="text-blue-400 font-medium">Rezumix Intelligence Dashboard</span>
+                            <span className="text-blue-400 font-medium">
+                                Rezumix Intelligence Dashboard
+                            </span>
                         </p>
                     </div>
 
@@ -147,10 +153,15 @@ export default function LoginPage() {
                     {/* Form */}
                     <form onSubmit={handleSubmit} className="space-y-5">
 
+                        {/* Email */}
                         <div className="space-y-2">
-                            <label className="text-xs font-medium text-slate-300 ml-1 uppercase tracking-wider">Email</label>
+                            <label className="text-xs font-medium text-slate-300 ml-1 uppercase tracking-wider">
+                                Email
+                            </label>
+
                             <div className="relative group">
                                 <Mail className="absolute left-4 top-3.5 w-5 h-5 text-slate-500 group-focus-within:text-blue-400 transition-colors" />
+
                                 <input
                                     type="email"
                                     value={email}
@@ -162,20 +173,40 @@ export default function LoginPage() {
                             </div>
                         </div>
 
+                        {/* Password */}
                         <div className="space-y-2">
+
+                            <label className="text-xs font-medium text-slate-300 ml-1 uppercase tracking-wider">
+                                Password
+                            </label>
+
                             <div className="relative group">
                                 <Lock className="absolute left-4 top-3.5 w-5 h-5 text-slate-500 group-focus-within:text-blue-400 transition-colors" />
+
                                 <input
-                                    type="password"
+                                    type={showPassword ? "text" : "password"}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     placeholder="••••••••"
                                     required
-                                    className="w-full bg-[#050505] border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white placeholder-slate-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
+                                    className="w-full bg-[#050505] border border-white/10 rounded-xl py-3 pl-12 pr-12 text-white placeholder-slate-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
                                 />
+
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-4 top-3.5 text-slate-500 hover:text-blue-400 transition-colors"
+                                >
+                                    {showPassword ? (
+                                        <EyeOff className="w-5 h-5" />
+                                    ) : (
+                                        <Eye className="w-5 h-5" />
+                                    )}
+                                </button>
                             </div>
                         </div>
 
+                        {/* Submit Button */}
                         <button
                             type="submit"
                             disabled={loading}
@@ -199,7 +230,10 @@ export default function LoginPage() {
                     <div className="mt-8 text-center pt-6 border-t border-white/5">
                         <p className="text-slate-400 text-sm">
                             Don&apos;t have an account?{" "}
-                            <Link href="/register" className="text-white font-medium hover:text-blue-400 transition-colors">
+                            <Link
+                                href="/register"
+                                className="text-white font-medium hover:text-blue-400 transition-colors"
+                            >
                                 Create Account
                             </Link>
                         </p>
