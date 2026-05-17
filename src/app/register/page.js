@@ -3,6 +3,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import axios from "axios";
+import { EMAIL_REGEX, PASSWORD_RULES, getPasswordStrength } from "@/lib/validation";
 import { motion, useMotionTemplate, useMotionValue } from "framer-motion";
 import {
     User,
@@ -66,32 +67,6 @@ const GridBackground = () => (
 
 // --- Main Page Component ---
 
-// --- Validation Helpers ---
-
-// Email regex: local-part @ domain . tld
-// Local part: starts with alphanumeric, allows dots/underscores/hyphens in the middle
-// Domain: alphanumeric with hyphens, dot-separated segments
-// TLD: 2-7 alpha characters
-const EMAIL_REGEX = /^[a-zA-Z0-9](?:[a-zA-Z0-9._%+-]*[a-zA-Z0-9])?@[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*\.[a-zA-Z]{2,7}$/;
-
-const PASSWORD_CRITERIA = [
-    { key: "minLength", label: "At least 8 characters", test: (pw) => pw.length >= 8 },
-    { key: "uppercase", label: "One uppercase letter (A-Z)", test: (pw) => /[A-Z]/.test(pw) },
-    { key: "lowercase", label: "One lowercase letter (a-z)", test: (pw) => /[a-z]/.test(pw) },
-    { key: "number", label: "One number (0-9)", test: (pw) => /[0-9]/.test(pw) },
-    { key: "special", label: "One special character (!@#$%^&*)", test: (pw) => /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(pw) },
-];
-
-function getPasswordStrength(pw) {
-    if (!pw) return { score: 0, label: "", color: "" };
-    const passed = PASSWORD_CRITERIA.filter((c) => c.test(pw)).length;
-    if (passed <= 1) return { score: 1, label: "Very Weak", color: "bg-red-500" };
-    if (passed === 2) return { score: 2, label: "Weak", color: "bg-orange-500" };
-    if (passed === 3) return { score: 3, label: "Fair", color: "bg-yellow-500" };
-    if (passed === 4) return { score: 4, label: "Strong", color: "bg-blue-500" };
-    return { score: 5, label: "Excellent", color: "bg-green-500" };
-}
-
 // --- Password Strength Meter Component ---
 
 function PasswordStrengthMeter({ password }) {
@@ -125,7 +100,7 @@ function PasswordStrengthMeter({ password }) {
 
             {/* Criteria checklist */}
             <div className="space-y-1.5">
-                {PASSWORD_CRITERIA.map((criteria) => {
+                {PASSWORD_RULES.map((criteria) => {
                     const passed = criteria.test(password);
                     return (
                         <div
@@ -169,9 +144,9 @@ export default function Register() {
 
     // --- Validation logic ---
     const validation = useMemo(() => {
-        const fullNameValid = fullName.trim().length >= 2;
+        const fullNameValid = fullName.trim().length >= 3;
         const emailValid = EMAIL_REGEX.test(email);
-        const passwordValid = PASSWORD_CRITERIA.every((c) => c.test(password));
+        const passwordValid = PASSWORD_RULES.every((c) => c.test(password));
 
         return {
             fullName: {
@@ -179,7 +154,7 @@ export default function Register() {
                 message: !fullName.trim()
                     ? "Full name is required"
                     : !fullNameValid
-                    ? "Name must be at least 2 characters"
+                    ? "Name must be at least 3 characters"
                     : "",
             },
             email: {

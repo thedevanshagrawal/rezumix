@@ -26,7 +26,7 @@ export function isPlainString(value) {
 //   Local part: starts with alphanumeric, allows ._%+- in the middle, ends with alphanumeric
 //   Domain: alphanumeric segments separated by dots, hyphens allowed in the middle
 //   TLD: 2–7 alpha characters
-const EMAIL_REGEX =
+export const EMAIL_REGEX =
     /^[a-zA-Z0-9](?:[a-zA-Z0-9._%+-]*[a-zA-Z0-9])?@[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*\.[a-zA-Z]{2,7}$/;
 
 /**
@@ -40,13 +40,23 @@ export function isValidEmail(email) {
 
 // ─── Password Validation ────────────────────────────────────────────────────
 
-const PASSWORD_RULES = [
-    { key: "minLength", test: (pw) => pw.length >= 8, message: "Password must be at least 8 characters" },
-    { key: "uppercase", test: (pw) => /[A-Z]/.test(pw), message: "Password must contain at least one uppercase letter (A-Z)" },
-    { key: "lowercase", test: (pw) => /[a-z]/.test(pw), message: "Password must contain at least one lowercase letter (a-z)" },
-    { key: "number", test: (pw) => /[0-9]/.test(pw), message: "Password must contain at least one number (0-9)" },
-    { key: "special", test: (pw) => /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(pw), message: "Password must contain at least one special character" },
+export const PASSWORD_RULES = [
+    { key: "minLength", label: "At least 8 characters", test: (pw) => pw.length >= 8, message: "Password must be at least 8 characters" },
+    { key: "uppercase", label: "One uppercase letter (A-Z)", test: (pw) => /[A-Z]/.test(pw), message: "Password must contain at least one uppercase letter (A-Z)" },
+    { key: "lowercase", label: "One lowercase letter (a-z)", test: (pw) => /[a-z]/.test(pw), message: "Password must contain at least one lowercase letter (a-z)" },
+    { key: "number", label: "One number (0-9)", test: (pw) => /[0-9]/.test(pw), message: "Password must contain at least one number (0-9)" },
+    { key: "special", label: "One special character (!@#$%^&*)", test: (pw) => /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(pw), message: "Password must contain at least one special character" },
 ];
+
+export function getPasswordStrength(pw) {
+    if (!pw) return { score: 0, label: "", color: "" };
+    const passed = PASSWORD_RULES.filter((c) => c.test(pw)).length;
+    if (passed <= 1) return { score: 1, label: "Very Weak", color: "bg-red-500" };
+    if (passed === 2) return { score: 2, label: "Weak", color: "bg-orange-500" };
+    if (passed === 3) return { score: 3, label: "Fair", color: "bg-yellow-500" };
+    if (passed === 4) return { score: 4, label: "Strong", color: "bg-blue-500" };
+    return { score: 5, label: "Excellent", color: "bg-green-500" };
+}
 
 /**
  * Validates a password against all strength rules.
@@ -78,8 +88,8 @@ export function validateFullName(name) {
     const trimmed = name.trim();
     const errors = [];
 
-    if (trimmed.length < 2) {
-        errors.push("Full name must be at least 2 characters");
+    if (trimmed.length < 3) {
+        errors.push("Full name must be at least 3 characters");
     }
     if (trimmed.length > 100) {
         errors.push("Full name must not exceed 100 characters");
