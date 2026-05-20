@@ -22,6 +22,10 @@ CHANGELOG.md
 /.next/
 /out/
 
+# next-sitemap (auto-generated during build)
+public/robots.txt
+public/sitemap*.xml
+
 # production
 /build
 
