@@ -49,6 +49,7 @@ export async function POST(req, res) {
         const user = await userModel.create({
             fullName: sanitizedName,
             email: sanitizedEmail,
+            password: password,
         })
 
         if (!user) {
