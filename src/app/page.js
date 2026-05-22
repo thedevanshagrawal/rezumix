@@ -73,6 +73,10 @@ const features = [
     desc: "Is your resume getting rejected? Our AI scans it like a recruiter and tells you exactly what to fix in seconds.",
     icon: FileText,
     tags: ["Fix Errors", "Beat the Bot"],
+    tagStyles: [
+      "bg-indigo-500/15 border-indigo-400/25 text-indigo-100",
+      "bg-indigo-500/15 border-indigo-400/25 text-indigo-100"
+    ],
     colSpan: "md:col-span-2",
     gradient: "from-blue-500/20 to-blue-500/0"
   },
@@ -81,6 +85,10 @@ const features = [
     desc: "Nervous about interviews? Practice with our AI voice coach. It asks real questions and gives you feedback.",
     icon: Mic,
     tags: ["Voice Mode", "Instant Feedback"],
+    tagStyles: [
+      "bg-indigo-500/15 border-indigo-400/25 text-indigo-100",
+      "bg-indigo-500/15 border-indigo-400/25 text-indigo-100"
+    ],
     colSpan: "md:col-span-1",
     gradient: "from-emerald-500/20 to-emerald-500/0"
   },
@@ -89,6 +97,10 @@ const features = [
     desc: "Confused about your future? We analyze your skills and suggest high-paying jobs you are good at.",
     icon: Briefcase,
     tags: ["Find Jobs", "Salary Check"],
+    tagStyles: [
+      "bg-indigo-500/15 border-indigo-400/25 text-indigo-100",
+      "bg-indigo-500/15 border-indigo-400/25 text-indigo-100"
+    ],
     colSpan: "md:col-span-1",
     gradient: "from-purple-500/20 to-purple-500/0"
   },
@@ -97,6 +109,10 @@ const features = [
     desc: "Are you a leader or a creator? Find out your work style and which companies suit you best.",
     icon: Users,
     tags: ["Psychology", "Culture Fit"],
+    tagStyles: [
+      "bg-indigo-500/15 border-indigo-400/25 text-indigo-100",
+      "bg-indigo-500/15 border-indigo-400/25 text-indigo-100"
+    ],
     colSpan: "md:col-span-1",
     gradient: "from-pink-500/20 to-pink-500/0"
   },
@@ -105,6 +121,10 @@ const features = [
     desc: "Want a promotion? See exactly which skills you are missing for that Senior role.",
     icon: Crosshair,
     tags: ["Learn New Skills", "Grow Fast"],
+    tagStyles: [
+      "bg-indigo-500/15 border-indigo-400/25 text-indigo-100",
+      "bg-indigo-500/15 border-indigo-400/25 text-indigo-100"
+    ],
     colSpan: "md:col-span-1",
     gradient: "from-orange-500/20 to-orange-500/0"
   },
@@ -125,9 +145,9 @@ const faqs = [
 ];
 
 const testimonials = [
-  { quote: "I applied to 50 jobs with no luck. After fixing my resume keywords with Rezumix, I got 3 interview calls in one week.", author: "Sarah J."},
-  { quote: "The AI interview mock was scary accurate. It asked me the exact question my actual interviewer asked the next day!", author: "David C."},
-  { quote: "I didn't know I was qualified for Senior roles until the Career Path tool showed me. I just got a 40% salary hike.", author: "Mike R."},
+  { quote: "I applied to 50 jobs with no luck. After fixing my resume keywords with Rezumix, I got 3 interview calls in one week.", author: "Sarah J." },
+  { quote: "The AI interview mock was scary accurate. It asked me the exact question my actual interviewer asked the next day!", author: "David C." },
+  { quote: "I didn't know I was qualified for Senior roles until the Career Path tool showed me. I just got a 40% salary hike.", author: "Mike R." },
 ];
 
 // --- Main Page Component ---
@@ -316,7 +336,9 @@ const Home = () => {
 
                 <div className="flex flex-wrap gap-1.5 sm:gap-2 relative z-10 mt-auto">
                   {feature.tags.map((tag, tIdx) => (
-                    <span key={tIdx} className="text-[10px] sm:text-xs font-medium px-2 py-1 rounded-full bg-white/5 border border-white/10 text-slate-300">
+                    <span
+                      key={tIdx}
+                      className={`text-[10px] sm:text-xs font-medium px-2 py-1 rounded-full border ${feature.tagStyles?.[tIdx] ?? "bg-white/5 border-white/10 text-slate-300"}`}>
                       {tag}
                     </span>
                   ))}
