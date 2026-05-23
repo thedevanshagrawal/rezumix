@@ -400,7 +400,16 @@ const InterviewSection = ({ params }) => {
                                         ].map((stat, i) => (
                                             <div key={i} className="bg-[#111] rounded-lg p-3 text-center border border-white/5">
                                                 <div className="text-xs text-slate-500 mb-1">{stat.label}</div>
-                                                <div className="text-sm font-bold text-white">{stat.val}</div>
+                                                <div className="text-sm font-bold text-white">
+                                                    <CountUp
+                                                        end={stat.end}
+                                                        duration={2}
+                                                        suffix={stat.suffix}
+                                                        decimals={stat.decimals || 0}
+                                                        enableScrollSpy
+                                                        scrollSpyOnce
+                                                    />
+                                                </div>
                                             </div>
                                         ))}
                                     </div>

@@ -51,6 +51,7 @@
     "openai": "^4.94.0",
     "pdfjs-dist": "^5.4.624",
     "react": "^19.2.3",
+    "react-countup": "^6.5.3",
     "react-dom": "^19.2.3",
     "react-hot-toast": "^2.5.2",
     "react-markdown": "^10.1.0",

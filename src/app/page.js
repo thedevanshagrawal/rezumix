@@ -19,6 +19,7 @@ import {
   Quote,
   Star
 } from 'lucide-react';
+import CountUp from "react-countup";
 
 // --- UI Components ---
 
@@ -131,10 +132,10 @@ const features = [
 ];
 
 const stats = [
-  { val: "50k+", label: "Resumes Fixed" },
-  { val: "95%", label: "Success Rate" },
-  { val: "24/7", label: "Always Online" },
-  { val: "4.9★", label: "User Rating" },
+  { end: 50, suffix: "k+", label: "Resumes Fixed" },
+  { end: 95, suffix: "%", label: "Success Rate" },
+  { end: 24, suffix: "/7", label: "Always Online" },
+  { end: 4.9, suffix: "★", label: "User Rating", decimals: 1 },
 ];
 
 const faqs = [
@@ -229,7 +230,14 @@ const Home = () => {
             <div className="grid grid-cols-3 gap-4 sm:gap-6 md:gap-8 border-t border-white/5 pt-6 sm:pt-7 md:pt-8 w-full max-w-md">
               {stats.slice(0, 3).map((s, i) => (
                 <div key={i} className="flex flex-col items-center lg:items-start">
-                  <span className="text-xl sm:text-2xl md:text-3xl font-bold text-white">{s.val}</span>
+                  <span className="text-xl sm:text-2xl md:text-3xl font-bold text-white">
+                    <CountUp
+                      end={s.end}
+                      duration={2}
+                      suffix={s.suffix}
+                      decimals={s.decimals || 0}
+                    />
+                  </span>
                   <span className="text-[10px] sm:text-xs text-slate-500 uppercase tracking-wider">{s.label}</span>
                 </div>
               ))}

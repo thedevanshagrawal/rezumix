@@ -94,10 +94,10 @@ const features = [
 ];
 
 const stats = [
-    { number: "50k+", label: "Resumes Analyzed" },
-    { number: "95%", label: "ATS Pass Rate" },
-    { number: "4.9★", label: "User Rating" },
-    { number: "10k+", label: "Career Pivots" },
+    { end: 50, suffix: "k+", label: "Resumes Analyzed" },
+    { end: 95, suffix: "%", label: "ATS Pass Rate" },
+    { end: 4.9, suffix: "★", label: "User Rating", decimals: 1 },
+    { end: 10, suffix: "k+", label: "Career Pivots" },
 ];
 
 export default function About() {
@@ -137,7 +137,16 @@ export default function About() {
                     >
                         {stats.map((stat, index) => (
                             <div key={index} className="flex flex-col items-center">
-                                <span className="text-3xl md:text-4xl font-bold text-white mb-2">{stat.number}</span>
+                                <span className="text-3xl md:text-4xl font-bold text-white mb-2">
+                                    <CountUp
+                                        end={stat.end}
+                                        duration={2}
+                                        suffix={stat.suffix}
+                                        decimals={stat.decimals || 0}
+                                        enableScrollSpy
+                                        scrollSpyOnce
+                                    />
+                                </span>
                                 <span className="text-xs text-slate-500 uppercase tracking-wider font-medium">{stat.label}</span>
                             </div>
                         ))}
