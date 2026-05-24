@@ -27,6 +27,7 @@ export default function BuilderHeader({
   const [exporting, setExporting] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   const exportRef = useRef(null);
+  const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "light");
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -37,6 +38,15 @@ export default function BuilderHeader({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    document.body.className = theme;
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
+  };
 
   const handleExport = async (format = "pdf") => {
     setExportOpen(false);
@@ -76,6 +86,11 @@ export default function BuilderHeader({
 
   return (
     <header className="h-16 bg-gray-950 border-b border-white/10 flex items-center justify-between px-4 md:px-6 sticky top-0 z-50">
+
+      {/* Theme Toggle */}
+      <button onClick={toggleTheme} className="text-sm font-medium text-white">
+        {theme === "light" ? "Switch to Dark Mode" : "Switch to Light Mode"}
+      </button>
 
       {/* Center: Template Switcher (desktop) */}
       <div className="hidden md:flex items-center gap-1 bg-white/5 rounded-lg p-1">
@@ -171,7 +186,7 @@ export default function BuilderHeader({
           {/* Portal Dropdown */}
           {exportOpen && typeof window !== "undefined" && createPortal(
             <div style={getDropdownPosition()}>
-              {[
+              [
                 { label: "Export as PDF", format: "pdf",  },
                 { label: "Export as DOCX", format: "docx", },
                 { label: "Export as JSON", format: "json",  },
@@ -201,7 +216,7 @@ export default function BuilderHeader({
                   <span>{item.icon}</span>
                   <span>{item.label}</span>
                 </button>
-              ))}
+              ))
             </div>,
             document.body
           )}
