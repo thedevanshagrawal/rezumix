@@ -30,6 +30,21 @@ export default function AdminSidebar() {
     const pathname = usePathname()
     const [mobileOpen, setMobileOpen] = useState(false)
     const [collapsed, setCollapsed] = useState(true)
+    const [stats, setStats] = useState(0);
+
+    // Update stats logic dynamically
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                // Placeholder logic to simulate fetching dynamic stats
+                const data = await new Promise(resolve => setTimeout(() => resolve(100), 500));
+                setStats(data);
+            } catch (error) {
+                console.error("Error fetching stats:", error);
+            }
+        };
+        fetchStats();
+    }, []);
 
     // Auth Protection
     useEffect(() => {
@@ -161,6 +176,12 @@ export default function AdminSidebar() {
                             </Link>
                         )
                     })}
+                </div>
+
+                {/* Statistics Display */}
+                <div className="p-4 border-t border-white/5 bg-[#0A0A0A] flex justify-between items-center">
+                    <span className="text-slate-400 font-medium">Stats:</span>
+                    <span className="text-slate-100 font-bold">{stats}</span>
                 </div>
 
                 {/* Footer */}
