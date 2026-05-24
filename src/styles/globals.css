@@ -1,0 +1,24 @@
+html[data-theme='dark'] {
+  --background-color: #050505;
+  --text-color: #ffffff;
+}
+
+html[data-theme='light'] {
+  --background-color: #ffffff;
+  --text-color: #000000;
+}
+
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+.theme-toggle {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: var(--text-color);
+  cursor: pointer;
+}
