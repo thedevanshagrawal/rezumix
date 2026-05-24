@@ -7,7 +7,6 @@ import ResumeForm from "@/components/(user-resume)/ResumeForm";
 import ResumePreview from "@/components/(user-resume)/ResumePreview";
 import BuilderHeader from "@/components/(user-resume)/BuilderHeader";
 
-
 const defaultResumeData = {
   personalInfo: { fullName: "", email: "", phone: "", location: "", linkedin: "", portfolio: "", summary: "" },
   experience: [],
@@ -29,27 +28,33 @@ export default function BuilderPage() {
   const [saveMsg, setSaveMsg] = useState("");
   const [suggestions, setSuggestions] = useState(null);
   const [suggesting, setSuggesting] = useState(false);
-
- useEffect(() => {
-  const saved = localStorage.getItem("resumeBuilderData");
-  if (saved) {
-    setResumeData(JSON.parse(saved));
-    setIsSample(false);
-  } else {
-    setIsSample(true);
-  }
-}, []);
+  const [theme, setTheme] = useState('light');
 
   useEffect(() => {
-  if (!isSample) {
-    localStorage.setItem("resumeBuilderData", JSON.stringify(resumeData));
-  }
-}, [resumeData, isSample]);
+    const saved = localStorage.getItem("resumeBuilderData");
+    if (saved) {
+      setResumeData(JSON.parse(saved));
+      setIsSample(false);
+    } else {
+      setIsSample(true);
+    }
+
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) {
+      setTheme(savedTheme);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isSample) {
+      localStorage.setItem("resumeBuilderData", JSON.stringify(resumeData));
+    }
+  }, [resumeData, isSample]);
 
   const updateResumeData = useCallback((section, value) => {
-  setResumeData((prev) => ({ ...prev, [section]: value }));
-  setIsSample(false);
-}, []);
+    setResumeData((prev) => ({ ...prev, [section]: value }));
+    setIsSample(false);
+  }, []);
 
   const handleSave = async () => {
     const userEmail = session?.user?.email;
@@ -71,11 +76,16 @@ export default function BuilderPage() {
     }
   };
 
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    localStorage.setItem("theme", newTheme);
+  };
+
   if (status === "loading") return null;
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* 1. Header with same style as dashboard cards */}
+    <div className={`flex flex-col gap-6 ${theme}`}>
       <div className="bg-gray-950 border border-white/10 rounded-2xl p-2 backdrop-blur-sm overflow-visible">
         <BuilderHeader
           resumeData={resumeData}
@@ -86,13 +96,11 @@ export default function BuilderPage() {
           onSave={handleSave}
           saving={saving}
           saveMsg={saveMsg}
+          toggleTheme={toggleTheme}
+          currentTheme={theme}
         />
       </div>
-
-      {/* 2. Main content area: Responsive Flex */}
       <div className="flex flex-col lg:flex-row gap-6 min-h-[70vh]">
-
-        {/* Form Section */}
         <div className={`flex-1 bg-gray-950 border border-white/10 rounded-2xl p-4 ${mobileView === "preview" ? "hidden lg:block" : "block"}`}>
           <ResumeForm resumeData={resumeData} updateResumeData={updateResumeData} />
 
@@ -105,18 +113,14 @@ export default function BuilderPage() {
             </div>
           )}
         </div>
-
-        {/* Preview Section */}
-        <div className={`flex-1 bg-gray-950 border border-white/10 rounded-2xl p-4 overflow-hidden ${mobileView === "form" ? "invisible h-0 lg:visible lg:h-auto": "block"}`}>
+        <div className={`flex-1 bg-gray-950 border border-white/10 rounded-2xl p-4 overflow-hidden ${mobileView === "form" ? "invisible h-0 lg:visible lg:h-auto" : "block"}`}>
           <div className="sticky top-4">
-            <ResumePreview 
-  resumeData={isSample ? sampleResumeData : resumeData} 
-  activeTemplate={activeTemplate} 
-  isSample={isSample} 
-/>
+            <ResumePreview
+              resumeData={isSample ? sampleResumeData : resumeData}
+              activeTemplate={activeTemplate}
+              isSample={isSample} />
           </div>
         </div>
-
       </div>
     </div>
   );
