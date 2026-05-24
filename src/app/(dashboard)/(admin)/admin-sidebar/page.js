@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import React, { useEffect, useState, useCallback, useMemo } from 'react'
-import { Menu, X, LayoutDashboard, LogOut, FilePlus, Sparkles, Briefcase, LampDesk, Video, BarChart3, User2, User, FileText, CheckCircle, Scroll, Brain, ClipboardCheck } from 'lucide-react'
-import { signOut, useSession } from 'next-auth/react'
-import Link from 'next/link'
-import { useRouter, usePathname } from 'next/navigation'
-import Image from 'next/image'
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import { Menu, X, LayoutDashboard, LogOut, FilePlus, Sparkles, Briefcase, LampDesk, Video, BarChart3, User2, User, FileText, CheckCircle, Scroll, Brain, ClipboardCheck } from 'lucide-react';
+import { signOut, useSession } from 'next-auth/react';
+import Link from 'next/link';
+import { useRouter, usePathname } from 'next/navigation';
+import Image from 'next/image';
 
 const SIDEBAR_LINKS = [
     { label: "Dashboard", href: "/admindashboard", icon: LayoutDashboard },
@@ -22,40 +22,53 @@ const SIDEBAR_LINKS = [
     { label: "All Skill Gaps", href: "/all-skill-gaps", icon: Brain },
     { label: "All OTPs", href: "/all-otps", icon: ClipboardCheck },
     { label: "Profile", href: "/admin-profile", icon: User2 },
-]
+];
 
 export default function AdminSidebar() {
-    const { data: session, status } = useSession()
-    const router = useRouter()
-    const pathname = usePathname()
-    const [mobileOpen, setMobileOpen] = useState(false)
-    const [collapsed, setCollapsed] = useState(true)
+    const { data: session, status } = useSession();
+    const router = useRouter();
+    const pathname = usePathname();
+    const [mobileOpen, setMobileOpen] = useState(false);
+    const [collapsed, setCollapsed] = useState(true);
+    const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
+
+    // Toggle theme
+    const toggleTheme = useCallback(() => {
+        const newTheme = theme === 'light' ? 'dark' : 'light';
+        setTheme(newTheme);
+        localStorage.setItem('theme', newTheme);
+        document.documentElement.setAttribute('data-theme', newTheme);
+    }, [theme]);
+
+    useEffect(() => {
+        document.documentElement.setAttribute('data-theme', theme);
+    }, [theme]);
 
     // Auth Protection
     useEffect(() => {
-        if (status === "loading") return
+        if (status === "loading") return;
         if (!session || status === "unauthenticated") {
-            router.replace("/")
+            router.replace("/");
         }
         if (session?.user?.role === "admin") {
-            router.replace("/admindashboard")
+            router.replace("/admindashboard");
         }
         if(session?.user?.role === "user") {
-            router.replace("/dashboard")
+            router.replace("/dashboard");
         }
-    }, [session, status, router])
+    }, [session, status, router]);
 
     // Lock Body Scroll
     useEffect(() => {
-        document.body.style.overflow = mobileOpen ? 'hidden' : 'unset'
-        return () => { document.body.style.overflow = 'unset' }
-    }, [mobileOpen])
+        document.body.style.overflow = mobileOpen ? 'hidden' : 'unset';
+        return () => { document.body.style.overflow = 'unset'; };
+    }, [mobileOpen]);
 
-    const toggleMobileMenu = () => setMobileOpen(!mobileOpen)
-    const closeMobileMenu = () => setMobileOpen(false)
+    const toggleMobileMenu = () => setMobileOpen(!mobileOpen);
+    const closeMobileMenu = () => setMobileOpen(false);
 
-    const userName = useMemo(() => session?.user?.name || "User", [session])
-    const userEmail = useMemo(() => session?.user?.email || "", [session])
+    const userName = useMemo(() => session?.user?.name || "User", [session]);
+    const userEmail = useMemo(() => session?.user?.email || "", [session]);
 
     if (status === "loading") return null;
 
@@ -78,8 +91,13 @@ export default function AdminSidebar() {
                         />
                     </div>
                 </div>
-                <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-xs">
-                    {userName[0]}
+                <div className="flex items-center gap-2">
+                    <button onClick={toggleTheme} className="p-2 text-slate-400 hover:text-white">
+                        {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
+                    </button>
+                    <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-xs">
+                        {userName[0]}
+                    </div>
                 </div>
             </div>
 
@@ -96,32 +114,25 @@ export default function AdminSidebar() {
                     fixed top-0 left-0 h-full bg-[#050505] border-r border-white/10 z-50 
                     text-slate-300 transition-all duration-300 ease-in-out
                     
-                    /* Mobile State */
                     ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}
                     w-72 
                     
-                    /* Desktop State */
                     md:translate-x-0 
                     ${collapsed ? 'md:w-20' : 'md:w-72'} 
                     
                     flex flex-col shadow-2xl
                 `}
             >
-                {/* Logo Area - PERFECTLY HANDLED */}
                 <div className="h-20 flex items-center justify-center md:justify-start px-0 md:px-6 border-b border-white/5 relative overflow-hidden">
-
-                    {/* 1. Collapsed State: Show Icon (Hidden on Hover/Mobile) */}
                     <div className={`absolute transition-all duration-300 flex items-center justify-center ${collapsed ? 'opacity-100 scale-100 delay-100' : 'opacity-0 scale-0'}`}>
                         <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
                             <Sparkles className="w-6 h-6 text-blue-400" />
                         </div>
                     </div>
-
-                    {/* 2. Expanded State: Show Full Logo Image */}
                     <div className={`transition-all duration-300 w-full ${collapsed ? 'opacity-0 translate-x-10 pointer-events-none' : 'opacity-100 translate-x-0 delay-75'}`}>
                         <Image
                             src="/rezumix_logo.png"
-                            width={160} // Adjusted width for sidebar
+                            width={160}
                             height={50}
                             alt="Rezumix"
                             className="h-10 w-auto object-contain"
@@ -130,11 +141,10 @@ export default function AdminSidebar() {
                     </div>
                 </div>
 
-                {/* Navigation */}
                 <div className="flex-1 overflow-y-auto py-6 px-3 space-y-2 custom-scrollbar">
                     {SIDEBAR_LINKS.map((link) => {
-                        const Icon = link.icon
-                        const active = pathname === link.href
+                        const Icon = link.icon;
+                        const active = pathname === link.href;
 
                         return (
                             <Link
@@ -154,16 +164,14 @@ export default function AdminSidebar() {
                                     {link.label}
                                 </span>
 
-                                {/* Active Indicator Dot */}
                                 {active && (
                                     <div className={`absolute right-2 w-1.5 h-1.5 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.6)] transition-opacity duration-300 ${collapsed ? 'opacity-0' : 'opacity-100'}`} />
                                 )}
                             </Link>
-                        )
+                        );
                     })}
                 </div>
 
-                {/* Footer */}
                 <div className="p-4 border-t border-white/5 bg-[#0A0A0A]">
                     <button
                         onClick={async () => { closeMobileMenu(); await signOut({ callbackUrl: "/" }); }}
@@ -177,5 +185,5 @@ export default function AdminSidebar() {
                 </div>
             </aside>
         </>
-    )
+    );
 }
