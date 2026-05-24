@@ -1,11 +1,12 @@
 "use client"
 
-import React, { useEffect, useState, useCallback, useMemo } from 'react'
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Menu, X, LayoutDashboard, LogOut, FilePlus, Sparkles, Briefcase, LampDesk, Video, BarChart3, User2, User, FileText, CheckCircle, Scroll, Brain, ClipboardCheck } from 'lucide-react'
 import { signOut, useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import Image from 'next/image'
+import { Sun, Moon } from 'lucide-react';
 
 const SIDEBAR_LINKS = [
     { label: "Dashboard", href: "/admindashboard", icon: LayoutDashboard },
@@ -30,6 +31,16 @@ export default function AdminSidebar() {
     const pathname = usePathname()
     const [mobileOpen, setMobileOpen] = useState(false)
     const [collapsed, setCollapsed] = useState(true)
+    const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
+
+    useEffect(() => {
+        document.body.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+    }, [theme]);
+
+    const toggleTheme = () => {
+        setTheme(theme === 'light' ? 'dark' : 'light');
+    };
 
     // Auth Protection
     useEffect(() => {
@@ -61,11 +72,19 @@ export default function AdminSidebar() {
 
     return (
         <>
-            {/* --- Mobile Header --- */}
+            <button
+                onClick={toggleTheme}
+                className="fixed bottom-4 right-4 text-lg p-2 rounded-full text-white bg-gray-800 focus:outline-none hover:bg-gray-700"
+            >
+                {theme === 'light' ? <Sun /> : <Moon />}
+            </button>            {/* --- Mobile Header --- */}
             <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-[#050505]/90 backdrop-blur-md border-b border-white/10 z-50 flex items-center justify-between px-4">
                 <div className="flex items-center gap-3">
                     <button onClick={toggleMobileMenu} className="p-2 -ml-2 text-slate-400 hover:text-white">
                         <Menu size={24} />
+                    </button>
+                    <button onClick={toggleTheme} className="p-2 -ml-2 text-slate-400 hover:text-white">
+                        {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
                     </button>
                     {/* Mobile Logo */}
                     <div className="h-8 w-auto">
