@@ -4,6 +4,8 @@ import SessionWrapper from "@/components/SessionWrapper";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
+import { Toaster } from "react-hot-toast";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -52,33 +54,43 @@ export default function RootLayout({ children }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="author" content="Devansh Agrawal" />
         <meta name="creator" content="Devansh Agrawal" />
+
         <meta
           name="description"
           content="Rezumix is an AI powered career assistance platform built and developed by Devansh Agrawal. It offers resume analysis, skill gap identification, career recommendations and AI driven interview preparation."
         />
+
         <meta
           name="keywords"
           content="AI Resume Analyzer, Resume Enhancement, Career Recommendations, Personality Prediction, Mock Interview, Resume Optimization, Job Application AI, Interview Preparation, Career Guidance AI, Skill Gap Identifier, AI Hiring, Job Search AI, RESUMIX, resumix, devansh, devansh agrawal"
         />
+
         <meta name="robots" content="index, follow" />
 
         {/* Open Graph tags */}
+
         <meta
           property="og:title"
           content="Rezumix – AI Resume Analyzer, Career Recommendation, Mock Interview Tool & Skill Gap Identifier"
         />
+
         <meta
           property="og:description"
           content="Analyze your resume, discover missing skills, get smart career insights, and practice interviews with AI, all in one place."
         />
+
         <meta property="og:image" content="/og-image.png" />
+
         <meta property="og:url" content="https://rezumix.in/" />
+
         <meta property="og:type" content="website" />
+
         <meta property="og:site_name" content="Rezumix" />
 
         <link rel="icon" href="/favicon.ico" />
 
-        {/* JSON-LD schema: SoftwareApplication + WebSite */}
+        {/* JSON-LD schema */}
+
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -114,19 +126,31 @@ export default function RootLayout({ children }) {
             ]),
           }}
         />
-       
       </head>
 
       <body
         className={`${geistSans.variable} ${geistMono.variable} bg-gradient-to-br from-gray-950 to-black text-white`}
       >
+
         <SessionWrapper>
+
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              duration: 3000,
+            }}
+          />
+
           <Navbar />
+
           <main className="min-h-screen">
             {children}
           </main>
+
           <Footer />
+
         </SessionWrapper>
+
       </body>
     </html>
   );

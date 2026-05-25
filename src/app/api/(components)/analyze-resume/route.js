@@ -92,6 +92,27 @@ Provide an improved version of their resume with your recommendations applied. M
 - Balance professionalism with warmth and approachability
 `;
 
+const keyword_prompt = (resumeText) => `
+Analyze the following resume text and return a JSON object with exactly 
+three keys:
+
+1. "keyword_analysis": an object with:
+   - "present": list of strong technical keywords found
+   - "missing": list of 3-5 relevant technical keywords absent from the resume
+   - "overused": list of weak filler phrases detected
+
+2. "skill_gaps": list of 3-5 skills commonly expected for the role 
+   implied by this resume that are missing
+
+3. "improvement_tips": list of 3-5 specific, actionable suggestions 
+   ranked by impact
+
+Return only valid JSON. No explanation, no markdown.
+
+Resume text:
+${resumeText}
+`;
+
 export async function POST(request) {
     try {
         const session = await getServerSession(authOptions);
@@ -102,12 +123,11 @@ export async function POST(request) {
         await connectDB();
 
         const { searchParams } = new URL(request.url);
-        const fileType = searchParams.get('fileType'); // ✅ "pdf" ya "docx"
+        const fileType = searchParams.get('fileType');
 
         let extractedText = "";
 
         if (fileType === "pdf") {
-            // ✅ PDF — frontend ne text extract karke JSON mein bheja
             const { text } = await request.json();
 
             if (!text || text.trim().length === 0) {
@@ -122,7 +142,6 @@ export async function POST(request) {
             });
 
         } else {
-            // ✅ DOCX — original flow bilkul same
             const formData = await request.formData();
             const file = formData.get("file");
             if (!file) return NextResponse.json({ error: "No file provided" }, { status: 400 });
@@ -146,6 +165,7 @@ export async function POST(request) {
 
         const structuredData = extractResumeDetails(extractedText);
 
+        // Start streaming Gemini call — unchanged from original
         const stream = await openai.chat.completions.create({
             model: "gemini-2.5-flash",
             messages: [
@@ -155,16 +175,46 @@ export async function POST(request) {
             stream: true
         });
 
+        // Fire keyword analysis in background — does NOT block stream
+        // Isolated catch so failure never affects the main analysis stream
+        const keywordPromise = openai.chat.completions.create({
+            model: "gemini-2.5-flash",
+            messages: [
+                { role: "user", content: keyword_prompt(extractedText) }
+            ],
+            stream: false
+        }).catch(e => {
+            console.error("Keyword analysis failed silently:", e);
+            return null;
+        });
+
         const encoder = new TextEncoder();
 
         const readable = new ReadableStream({
             async start(controller) {
+                // Stream main analysis — exactly as before
                 for await (const chunk of stream) {
                     const content = chunk.choices[0]?.delta?.content || "";
                     if (content) {
-                        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ content })} \n\n`));
+                        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ content })}\n\n`));
                     }
                 }
+
+                // Main stream done — now resolve keyword result
+                const keywordResponse = await keywordPromise;
+                if (keywordResponse) {
+                    try {
+                        const raw = keywordResponse.choices[0].message.content;
+                        const clean = raw.replace(/```json|```/g, "").trim();
+                        const keywordData = JSON.parse(clean);
+                        controller.enqueue(
+                            encoder.encode(`data: ${JSON.stringify({ keyword_data: keywordData })}\n\n`)
+                        );
+                    } catch (e) {
+                        console.error("Keyword JSON parse failed:", e);
+                    }
+                }
+
                 controller.close();
             }
         });
