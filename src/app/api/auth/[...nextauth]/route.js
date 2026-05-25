@@ -16,7 +16,6 @@ export const authOptions = {
       },
       async authorize(credentials) {
         try {
-          await connectDB();
           const { email, password } = credentials;
 
           // Prevent NoSQL injection
@@ -25,6 +24,8 @@ export const authOptions = {
           }
 
           const sanitizedEmail = email.trim().toLowerCase();
+
+          await connectDB();
 
           // Validate email format
           if (!isValidEmail(sanitizedEmail)) {

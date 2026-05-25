@@ -2,20 +2,22 @@
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
+import { useThemeMode } from "@/hooks/use-theme-mode";
 
 const Footer = () => {
     const { data: session } = useSession()
+    const { isLight } = useThemeMode();
 
     // Optional: Hide footer if session exists (Dashboard usually has its own layout)
     if (session) return null;
 
     return (
-        <footer className="relative bg-background border-t border-border overflow-hidden pt-20 pb-10 transition-colors duration-300">
+        <footer className={`relative overflow-hidden pt-20 pb-10 ${isLight ? "bg-white border-t border-slate-200" : "bg-[#050505] border-t border-white/5"}`}>
 
             {/* Background Grid Pattern (Matching Home Page) */}
-            <div className="absolute inset-0 z-0 pointer-events-none opacity-50">
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(15,23,42,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.06)_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:32px_32px]" />
-                <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-primary/5 blur-[120px] rounded-full" />
+            <div className={`absolute inset-0 z-0 pointer-events-none ${isLight ? "opacity-70" : "opacity-50"}`}>
+                <div className={`absolute inset-0 bg-[size:32px_32px] ${isLight ? "bg-[linear-gradient(to_right,#0f172a08_1px,transparent_1px),linear-gradient(to_bottom,#0f172a08_1px,transparent_1px)]" : "bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)]"}`} />
+                <div className={`absolute bottom-0 left-0 w-[500px] h-[500px] blur-[120px] rounded-full ${isLight ? "bg-blue-500/10" : "bg-blue-600/5"}`} />
             </div>
 
             <div className="relative z-10 container mx-auto px-6 max-w-7xl">
@@ -26,7 +28,7 @@ const Footer = () => {
                         <Link href="/">
                             <Image src={'/rezumix_logo.png'} alt='Rezumix' width={200} height={50} className="w-40 opacity-90" />
                         </Link>
-                        <p className="text-muted-foreground max-w-sm leading-relaxed">
+                        <p className={`max-w-sm leading-relaxed ${isLight ? "text-slate-600" : "text-slate-400"}`}>
                             Empowering careers with AI intelligence. Stop guessing and start getting hired with data-driven insights.
                         </p>
 
@@ -42,7 +44,7 @@ const Footer = () => {
                                     key={idx}
                                     href={social.href}
                                     target="_blank"
-                                    className="w-10 h-10 rounded-full bg-muted/50 border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
+                                    className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all ${isLight ? "bg-slate-100 border-slate-200 text-slate-500 hover:text-slate-950 hover:bg-slate-200" : "bg-white/5 border border-white/5 text-slate-400 hover:text-white hover:bg-white/10"}`}
                                 >
                                     {/* Simple mapping for Icons based on index/name or just SVG directly */}
                                     <SocialIcon name={social.icon} />
@@ -53,7 +55,7 @@ const Footer = () => {
 
                     {/* Links Columns */}
                     <div>
-                        <h3 className="text-foreground font-bold mb-6">Product</h3>
+                        <h3 className={`font-bold mb-6 ${isLight ? "text-slate-950" : "text-white"}`}>Product</h3>
                         <ul className="space-y-4">
                             {[
                                 "Resume Checker",
@@ -63,7 +65,7 @@ const Footer = () => {
                                 "Skill Analysis"
                             ].map((item, i) => (
                                 <li key={i}>
-                                    <Link href="/login" className="text-muted-foreground hover:text-foreground transition-colors text-sm">
+                                    <Link href="/login" className={`transition-colors text-sm ${isLight ? "text-slate-500 hover:text-slate-950" : "text-slate-400 hover:text-blue-400"}`}>
                                         {item}
                                     </Link>
                                 </li>
@@ -72,7 +74,7 @@ const Footer = () => {
                     </div>
 
                     <div>
-                        <h3 className="text-foreground font-bold mb-6">Company</h3>
+                        <h3 className={`font-bold mb-6 ${isLight ? "text-slate-950" : "text-white"}`}>Company</h3>
                         <ul className="space-y-4">
                             {[
                                 { label: "About", href: "/about" },
@@ -86,14 +88,14 @@ const Footer = () => {
                                         <a
                                             href={href}
                                             download
-                                            className="text-muted-foreground hover:text-foreground transition-colors duration-300"
+                                            className={`transition-colors duration-300 ${isLight ? "text-slate-500 hover:text-emerald-600" : "text-gray-400 hover:text-emerald-400"}`}
                                         >
                                             {label}
                                         </a>
                                     ) : (
                                         <Link
                                             href={href}
-                                            className="text-muted-foreground hover:text-foreground transition-colors duration-300"
+                                            className={`transition-colors duration-300 ${isLight ? "text-slate-500 hover:text-pink-600" : "text-gray-400 hover:text-pink-400"}`}
                                         >
                                             {label}
                                         </Link>
@@ -105,12 +107,12 @@ const Footer = () => {
                 </div>
 
                 {/* Bottom Bar */}
-                <div className="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                    <p className="text-muted-foreground text-sm">© {new Date().getFullYear()} Rezumix Inc. All rights reserved.</p>
+                <div className={`pt-8 flex flex-col md:flex-row justify-between items-center gap-4 ${isLight ? "border-t border-slate-200" : "border-t border-white/5"}`}>
+                    <p className={`text-sm ${isLight ? "text-slate-500" : "text-slate-600"}`}>© {new Date().getFullYear()} Rezumix Inc. All rights reserved.</p>
 
                     {/* Big Brand Text (Subtle) */}
                     <div className="hidden md:block">
-                        <span className="text-2xl font-bold bg-gradient-to-r from-slate-400 to-slate-700 dark:from-slate-800 dark:to-slate-900 bg-clip-text text-transparent select-none">
+                        <span className={`text-2xl font-bold bg-clip-text text-transparent select-none ${isLight ? "bg-gradient-to-r from-slate-300 to-slate-500" : "bg-gradient-to-r from-slate-800 to-slate-900"}`}>
                             REZUMIX
                         </span>
                     </div>

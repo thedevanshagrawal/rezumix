@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import ResumeForm from "@/components/(user-resume)/ResumeForm";
 import ResumePreview from "@/components/(user-resume)/ResumePreview";
 import BuilderHeader from "@/components/(user-resume)/BuilderHeader";
+import { useThemeMode } from "@/hooks/use-theme-mode";
 
 
 const defaultResumeData = {
@@ -20,6 +21,7 @@ const defaultResumeData = {
 export default function BuilderPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const { isLight } = useThemeMode();
 
   const [resumeData, setResumeData] = useState(defaultResumeData);
   const [isSample, setIsSample] = useState(true);
@@ -74,9 +76,9 @@ export default function BuilderPage() {
   if (status === "loading") return null;
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className={`flex flex-col gap-6 ${isLight ? "text-slate-900" : "text-slate-200"}`}>
       {/* 1. Header with same style as dashboard cards */}
-      <div className="bg-card/80 border border-border rounded-2xl p-2 backdrop-blur-sm overflow-visible">
+      <div className={`rounded-2xl p-2 backdrop-blur-sm overflow-visible ${isLight ? "bg-white border border-slate-200" : "bg-gray-950 border border-white/10"}`}>
         <BuilderHeader
           resumeData={resumeData}
           activeTemplate={activeTemplate}
@@ -93,21 +95,21 @@ export default function BuilderPage() {
       <div className="flex flex-col lg:flex-row gap-6 min-h-[70vh]">
 
         {/* Form Section */}
-        <div className={`flex-1 bg-card/80 border border-border rounded-2xl p-4 ${mobileView === "preview" ? "hidden lg:block" : "block"}`}>
+        <div className={`flex-1 rounded-2xl p-4 ${mobileView === "preview" ? "hidden lg:block" : "block"} ${isLight ? "bg-white border border-slate-200" : "bg-gray-950 border border-white/10"}`}>
           <ResumeForm resumeData={resumeData} updateResumeData={updateResumeData} />
 
           {suggestions && (
-            <div className="mt-6 p-4 border-t border-border">
-              <h3 className="text-primary text-sm font-bold mb-3">AI Suggestions</h3>
+            <div className={`mt-6 p-4 border-t ${isLight ? "border-slate-200" : "border-white/10"}`}>
+              <h3 className={`text-sm font-bold mb-3 ${isLight ? "text-blue-700" : "text-blue-400"}`}>AI Suggestions</h3>
               {Object.entries(suggestions).map(([key, value]) => (
-                <p key={key} className="text-xs text-muted-foreground mb-2 italic">&quot;{value}&quot;</p>
+                <p key={key} className={`text-xs mb-2 italic ${isLight ? "text-slate-500" : "text-slate-400"}`}>"{value}"</p>
               ))}
             </div>
           )}
         </div>
 
         {/* Preview Section */}
-        <div className={`flex-1 bg-card/80 border border-border rounded-2xl p-4 overflow-hidden ${mobileView === "form" ? "invisible h-0 lg:visible lg:h-auto": "block"}`}>
+        <div className={`flex-1 rounded-2xl p-4 overflow-hidden ${mobileView === "form" ? "invisible h-0 lg:visible lg:h-auto": "block"} ${isLight ? "bg-white border border-slate-200" : "bg-gray-950 border border-white/10"}`}>
           <div className="sticky top-4">
             <ResumePreview 
   resumeData={isSample ? sampleResumeData : resumeData} 

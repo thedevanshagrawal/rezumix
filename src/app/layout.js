@@ -42,25 +42,24 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `
-              (function () {
-                try {
-                  var storageKey = "rezumix-theme";
-                  var storedTheme = localStorage.getItem(storageKey);
-                  var theme = storedTheme === "light" || storedTheme === "dark"
-                    ? storedTheme
-                    : (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-                  var root = document.documentElement;
-                  root.classList.toggle("dark", theme === "dark");
-                  root.dataset.theme = theme;
-                  root.style.colorScheme = theme;
-                } catch (error) {}
-              })();
-            `,
+            __html: `(() => {
+              try {
+                const storedTheme = localStorage.getItem('rezumix-theme');
+                const theme = storedTheme === 'light' ? 'light' : 'dark';
+                const root = document.documentElement;
+                root.classList.remove('dark', 'light');
+                root.classList.add(theme);
+                root.style.colorScheme = theme;
+              } catch (error) {
+                document.documentElement.classList.remove('light');
+                document.documentElement.classList.add('dark');
+                document.documentElement.style.colorScheme = 'dark';
+              }
+            })();`,
           }}
         />
         <title>
@@ -137,11 +136,11 @@ export default function RootLayout({ children }) {
       </head>
 
       <body
-        className={`${geistSans.variable} ${geistMono.variable} bg-background text-foreground transition-colors duration-300 antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable}`}
       >
         <SessionWrapper>
           <Navbar />
-          <main className="min-h-screen bg-background text-foreground transition-colors duration-300">
+          <main className="min-h-screen">
             {children}
           </main>
           <Footer />

@@ -6,7 +6,8 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { marked } from "marked";
 import { Button } from "../ui/button";
-import { useTheme } from "@/components/ThemeProvider";
+import { useThemeMode } from "@/hooks/use-theme-mode";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const questions = [
     { id: 1, text: "Do you prefer structured routines?" },
@@ -34,18 +35,21 @@ const questions = [
 const options = ["Strongly Agree", "Agree", "Neutral", "Disagree", "Strongly Disagree"];
 
 // Background Component
-const GridBackground = ({ isDark }) => (
-    <div className={isDark ? "fixed inset-0 z-0 pointer-events-none bg-[#050505]" : "fixed inset-0 z-0 pointer-events-none bg-slate-50"}>
-        <div className={isDark ? "absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:32px_32px]" : "absolute inset-0 bg-[linear-gradient(to_right,rgba(15,23,42,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.06)_1px,transparent_1px)] bg-[size:32px_32px]"} />
-        <div className={isDark ? "absolute top-0 left-0 w-full h-[60vh] bg-purple-600/5 blur-[120px] rounded-full mix-blend-screen" : "absolute top-0 left-0 w-full h-[60vh] bg-purple-400/10 blur-[120px] rounded-full mix-blend-screen"} />
-        <div className={isDark ? "absolute bottom-0 right-0 w-full h-[60vh] bg-pink-600/5 blur-[120px] rounded-full mix-blend-screen" : "absolute bottom-0 right-0 w-full h-[60vh] bg-pink-400/10 blur-[120px] rounded-full mix-blend-screen"} />
-    </div>
+const GridBackground = ({ isLight }) => (
+        <div className={`fixed inset-0 z-0 pointer-events-none ${isLight ? "bg-[#f8fafc]" : "bg-[#050505]"}`}>
+                <div className={`absolute inset-0 ${isLight
+                        ? "bg-[linear-gradient(to_right,#e2e8f033_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f033_1px,transparent_1px)]"
+                        : "bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)]"
+                        } bg-[size:32px_32px]`} />
+                <div className={`absolute top-0 left-0 w-full h-[60vh] blur-[120px] rounded-full ${isLight ? "bg-purple-400/10" : "bg-purple-600/5"}`} />
+                <div className={`absolute bottom-0 right-0 w-full h-[60vh] blur-[120px] rounded-full ${isLight ? "bg-pink-300/10" : "bg-pink-600/5"}`} />
+        </div>
 );
 
 export default function PersonalityPrediction() {
     const { data: session, status } = useSession();
     const router = useRouter();
-    const { isDark } = useTheme();
+    const { isLight } = useThemeMode();
 
     useEffect(() => {
         if (status === "unauthenticated") {
@@ -120,31 +124,16 @@ export default function PersonalityPrediction() {
         return { __html: marked(markdown) };
     };
 
-    const pageClassName = isDark ? "relative min-h-screen bg-[#050505] text-slate-200" : "relative min-h-screen bg-slate-50 text-slate-900";
-    const heroCardClassName = isDark ? "bg-[#0A0A0A] border border-white/10" : "bg-white border border-slate-200 shadow-xl shadow-slate-200/70";
-    const inputClassName = isDark
-        ? "w-full bg-[#111] border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-purple-500/50 transition-all"
-        : "w-full bg-white border border-slate-200 rounded-xl py-3 pl-12 pr-4 text-slate-900 focus:outline-none focus:border-purple-500/50 transition-all placeholder:text-slate-400";
-    const labelTextClassName = isDark ? "text-slate-400" : "text-slate-600";
-    const mutedTextClassName = isDark ? "text-slate-400" : "text-slate-500";
-    const titleClassName = isDark ? "text-white" : "text-slate-900";
-    const optionTextClassName = isDark ? "text-slate-300" : "text-slate-700";
-    const optionButtonClassName = isDark
-        ? "w-full p-4 text-left bg-white/5 hover:bg-white/10 border border-white/5 hover:border-purple-500/30 rounded-xl transition-all duration-200 flex items-center justify-between group"
-        : "w-full p-4 text-left bg-white hover:bg-slate-50 border border-slate-200 hover:border-purple-400/40 rounded-xl transition-all duration-200 flex items-center justify-between group shadow-sm";
-    const resultCardClassName = isDark ? "bg-[#0A0A0A] border border-white/10" : "bg-white border border-slate-200 shadow-xl shadow-slate-200/70";
-    const resultTextClassName = isDark
-        ? "text-slate-300 leading-relaxed space-y-6"
-        : "text-slate-700 leading-relaxed space-y-6";
-    const spinnerClassName = isDark ? "w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mb-6" : "w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mb-6";
-
     if (status === "loading") return null;
 
     return (
-        <div className={`${pageClassName} font-sans selection:bg-purple-500/30 overflow-x-hidden`}>
-            <GridBackground isDark={isDark} />
+        <div className={`relative min-h-screen font-sans overflow-x-hidden ${isLight ? "bg-[#f8fafc] text-slate-900 selection:bg-purple-500/20" : "bg-[#050505] text-slate-200 selection:bg-purple-500/30"}`}>
+            <GridBackground isLight={isLight} />
 
             <div className="relative z-10 max-w-5xl mx-auto px-6 py-12">
+                <div className="flex justify-end mb-6">
+                    <ThemeToggle />
+                </div>
                 
                 {/* Header */}
                 <div className="text-center mb-12">
@@ -152,10 +141,10 @@ export default function PersonalityPrediction() {
                         <Brain className="w-3 h-3" />
                         <span>Psychometric AI</span>
                     </div>
-                    <h1 className={`text-3xl md:text-5xl font-bold ${titleClassName} mb-6 tracking-tight`}>
+                    <h1 className={`text-3xl md:text-5xl font-bold mb-6 tracking-tight ${isLight ? "text-slate-950" : "text-white"}`}>
                         Personality <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">Assessment</span>
                     </h1>
-                    <p className={`text-lg ${mutedTextClassName} max-w-2xl mx-auto leading-relaxed`}>
+                    <p className={`text-lg max-w-2xl mx-auto leading-relaxed ${isLight ? "text-slate-600" : "text-slate-400"}`}>
                         Discover your professional archetype. We analyze 20 data points to find the work environment where you&apos;ll thrive.
                     </p>
                 </div>
@@ -167,31 +156,31 @@ export default function PersonalityPrediction() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -20 }}
-                            className={`${heroCardClassName} rounded-3xl p-8 md:p-12 shadow-2xl max-w-2xl mx-auto relative`}
+                            className={`max-w-2xl mx-auto relative rounded-3xl p-8 md:p-12 shadow-2xl ${isLight ? "bg-white border border-slate-200" : "bg-[#0A0A0A] border border-white/10"}`}
                         >
                             <div className="text-center">
                                 <div className="w-16 h-16 mx-auto bg-purple-500/10 rounded-full flex items-center justify-center mb-6 text-purple-400">
                                     <Sparkles className="w-8 h-8" />
                                 </div>
-                                <h2 className={`text-2xl font-bold ${titleClassName} mb-4`}>Ready to begin?</h2>
+                                <h2 className={`text-2xl font-bold mb-4 ${isLight ? "text-slate-950" : "text-white"}`}>Ready to begin?</h2>
                                 <div className="max-w-xs mx-auto space-y-6">
                                     <div className="space-y-2 text-left">
-                                        <label className={`text-sm font-medium ${labelTextClassName} ml-1`}>Your Full Name</label>
+                                        <label className={`text-sm font-medium ml-1 ${isLight ? "text-slate-600" : "text-slate-400"}`}>Your Full Name</label>
                                         <div className="relative">
-                                            <User className={`absolute left-4 top-3.5 w-5 h-5 ${isDark ? "text-slate-500" : "text-slate-400"}`} />
+                                            <User className={`absolute left-4 top-3.5 w-5 h-5 ${isLight ? "text-slate-400" : "text-slate-500"}`} />
                                             <input
                                                 type="text"
                                                 value={name}
                                                 onChange={(e) => setName(e.target.value)}
                                                 placeholder="John Doe"
-                                                className={inputClassName}
+                                                className={`w-full rounded-xl py-3 pl-12 pr-4 focus:outline-none transition-all ${isLight ? "bg-white border border-slate-200 text-slate-900 focus:border-purple-500/50" : "bg-[#111] border border-white/10 text-white focus:border-purple-500/50"}`}
                                             />
                                         </div>
                                     </div>
                                     <Button
                                         onClick={startQuiz}
                                         disabled={!name}
-                                        className="w-full py-6 bg-white text-black font-bold rounded-xl hover:bg-slate-200 transition-all text-base shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)] cursor-pointer"
+                                        className={`w-full py-6 font-bold rounded-xl transition-all text-base cursor-pointer ${isLight ? "bg-slate-950 text-white hover:bg-slate-800 shadow-[0_0_20px_-5px_rgba(15,23,42,0.25)]" : "bg-white text-black hover:bg-slate-200 shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)]"}`}
                                     >
                                         Start Assessment <ArrowRight className="w-4 h-4 ml-2" />
                                     </Button>
@@ -204,15 +193,15 @@ export default function PersonalityPrediction() {
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: -20 }}
-                            className={`${heroCardClassName} rounded-3xl p-8 md:p-12 shadow-2xl max-w-3xl mx-auto relative`}
+                            className={`max-w-3xl mx-auto relative rounded-3xl p-8 md:p-12 shadow-2xl ${isLight ? "bg-white border border-slate-200" : "bg-[#0A0A0A] border border-white/10"}`}
                         >
                             {/* Progress Bar */}
                             <div className="mb-8">
-                                <div className={`flex justify-between text-xs ${mutedTextClassName} mb-2 font-mono`}>
+                                <div className={`flex justify-between text-xs mb-2 font-mono ${isLight ? "text-slate-500" : "text-slate-400"}`}>
                                     <span>QUESTION {currentQuestion + 1} / {questions.length}</span>
                                     <span>{Math.round(progressPercentage)}%</span>
                                 </div>
-                                <div className={isDark ? "h-1 bg-white/5 rounded-full overflow-hidden" : "h-1 bg-slate-200 rounded-full overflow-hidden"}>
+                                <div className={`h-1 rounded-full overflow-hidden ${isLight ? "bg-slate-100" : "bg-white/5"}`}>
                                     <motion.div 
                                         className="h-full bg-gradient-to-r from-purple-500 to-pink-500"
                                         initial={{ width: 0 }}
@@ -222,7 +211,7 @@ export default function PersonalityPrediction() {
                                 </div>
                             </div>
 
-                            <h2 className={`text-2xl md:text-3xl font-bold ${titleClassName} mb-10 text-center leading-snug`}>
+                            <h2 className={`text-2xl md:text-3xl font-bold mb-10 text-center leading-snug ${isLight ? "text-slate-950" : "text-white"}`}>
                                 {questions[currentQuestion].text}
                             </h2>
 
@@ -231,10 +220,10 @@ export default function PersonalityPrediction() {
                                     <button
                                         key={idx}
                                         onClick={() => handleAnswer(option)}
-                                        className={optionButtonClassName}
+                                        className={`w-full p-4 text-left rounded-xl transition-all duration-200 flex items-center justify-between group ${isLight ? "bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-purple-400/30" : "bg-white/5 hover:bg-white/10 border border-white/5 hover:border-purple-500/30"}`}
                                     >
-                                        <span className={`${optionTextClassName} group-hover:text-white font-medium`}>{option}</span>
-                                        <div className={`w-5 h-5 rounded-full ${isDark ? "border border-slate-600 group-hover:border-purple-400" : "border border-slate-400 group-hover:border-purple-500"} flex items-center justify-center`}>
+                                        <span className={`font-medium ${isLight ? "text-slate-700 group-hover:text-slate-950" : "text-slate-300 group-hover:text-white"}`}>{option}</span>
+                                        <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${isLight ? "border-slate-300 group-hover:border-purple-400" : "border-slate-600 group-hover:border-purple-400"}`}>
                                             <div className="w-2.5 h-2.5 rounded-full bg-purple-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                                         </div>
                                     </button>
@@ -246,48 +235,49 @@ export default function PersonalityPrediction() {
                             key="results"
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className={`${resultCardClassName} rounded-3xl p-8 md:p-12 shadow-2xl relative`}
+                            className={`relative rounded-3xl p-8 md:p-12 shadow-2xl ${isLight ? "bg-white border border-slate-200" : "bg-[#0A0A0A] border border-white/10"}`}
                         >
-                            <div className={`flex items-center gap-4 mb-8 ${isDark ? "border-b border-white/5" : "border-b border-slate-200"} pb-6`}>
+                            <div className={`flex items-center gap-4 mb-8 pb-6 ${isLight ? "border-b border-slate-200" : "border-b border-white/5"}`}>
                                 <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
                                     <Target className="w-6 h-6 text-purple-400" />
                                 </div>
                                 <div>
-                                    <h2 className={`text-2xl font-bold ${titleClassName}`}>Personality Profile</h2>
-                                    <p className={`text-sm ${mutedTextClassName}`}>Analysis for {name}</p>
+                                    <h2 className={`text-2xl font-bold ${isLight ? "text-slate-950" : "text-white"}`}>Personality Profile</h2>
+                                    <p className={`text-sm ${isLight ? "text-slate-600" : "text-slate-400"}`}>Analysis for {name}</p>
                                 </div>
                             </div>
 
                             {personalityResult ? (
                                 <div 
                                     className={`
-                                        ${resultTextClassName}
+                                        leading-relaxed space-y-6
                                         [&>h1]:text-purple-400 [&>h1]:text-3xl [&>h1]:font-bold [&>h1]:mt-8 [&>h1]:mb-6
-                                        [&>h2]:text-purple-400 [&>h2]:text-2xl [&>h2]:font-semibold [&>h2]:mt-8 [&>h2]:mb-4
-                                        [&>h3]:text-purple-400 [&>h3]:text-xl [&>h3]:font-semibold [&>h3]:mt-6 [&>h3]:mb-3
-                                        [&>h4]:text-purple-300 [&>h4]:text-lg [&>h4]:font-medium [&>h4]:mt-5 [&>h4]:mb-3
-                                        [&>p]:text-slate-300 [&>p]:leading-7 [&>p]:mb-5
-                                        [&>ul]:text-slate-300 [&>ul]:pl-6 [&>ul]:mb-6 [&>ul]:space-y-3 [&>ul]:list-disc
-                                        [&>ol]:text-slate-300 [&>ol]:pl-6 [&>ol]:mb-6 [&>ol]:space-y-3
+                                        [&>h2]:text-purple-600 [&>h2]:text-2xl [&>h2]:font-semibold [&>h2]:mt-8 [&>h2]:mb-4
+                                        [&>h3]:text-purple-600 [&>h3]:text-xl [&>h3]:font-semibold [&>h3]:mt-6 [&>h3]:mb-3
+                                        [&>h4]:text-purple-500 [&>h4]:text-lg [&>h4]:font-medium [&>h4]:mt-5 [&>h4]:mb-3
+                                        [&>p]:leading-7 [&>p]:mb-5
+                                        [&>ul]:pl-6 [&>ul]:mb-6 [&>ul]:space-y-3 [&>ul]:list-disc
+                                        [&>ol]:pl-6 [&>ol]:mb-6 [&>ol]:space-y-3
                                         [&>li]:mb-2 [&>li]:leading-7 [&>li]:marker:text-purple-500
-                                        [&>strong]:text-white [&>strong]:font-semibold
-                                        [&>blockquote]:bg-white/5 [&>blockquote]:border-l-4 [&>blockquote]:border-purple-500 [&>blockquote]:pl-6 [&>blockquote]:py-4 [&>blockquote]:rounded-r-xl [&>blockquote]:my-8 [&>blockquote]:italic
-                                        [&>hr]:border-white/10 [&>hr]:my-8
+                                        [&>strong]:font-semibold
+                                        [&>blockquote]:border-l-4 [&>blockquote]:border-purple-500 [&>blockquote]:pl-6 [&>blockquote]:py-4 [&>blockquote]:rounded-r-xl [&>blockquote]:my-8 [&>blockquote]:italic
+                                        ${isLight ? "[&>blockquote]:bg-purple-50 [&>blockquote]:text-slate-700" : "[&>blockquote]:bg-white/5 [&>blockquote]:text-slate-200"}
+                                        [&>hr]:border-slate-200 [&>hr]:my-8
                                     `}
                                     dangerouslySetInnerHTML={renderMarkdown(personalityResult)} 
                                 />
                             ) : (
                                 <div className="flex flex-col items-center justify-center py-20">
-                                    <div className={spinnerClassName}></div>
+                                    <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mb-6"></div>
                                     <p className="text-purple-300 text-lg animate-pulse">Analyzing your traits...</p>
                                 </div>
                             )}
 
                             {personalityResult && (
-                                <div className={`mt-12 pt-8 ${isDark ? "border-t border-white/10" : "border-t border-slate-200"}`}>
+                                <div className={`mt-12 pt-8 ${isLight ? "border-t border-slate-200" : "border-t border-white/10"}`}>
                                     <button
                                         onClick={retakeQuiz}
-                                        className={isDark ? "px-8 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl font-medium transition-all flex items-center gap-2 cursor-pointer" : "px-8 py-3 bg-slate-900 hover:bg-slate-800 border border-slate-300 text-white rounded-xl font-medium transition-all flex items-center gap-2 cursor-pointer"}
+                                        className={`px-8 py-3 rounded-xl font-medium transition-all flex items-center gap-2 cursor-pointer ${isLight ? "bg-white hover:bg-slate-50 border border-slate-200 text-slate-950" : "bg-white/5 hover:bg-white/10 border border-white/10 text-white"}`}
                                     >
                                         <ArrowLeft className="w-4 h-4" /> Retake Assessment
                                     </button>

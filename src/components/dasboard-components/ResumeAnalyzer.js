@@ -4,6 +4,8 @@ import { UploadCloud, FileText, CheckCircle, AlertCircle, ArrowRight, Zap, Targe
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { marked } from "marked";
+import { useThemeMode } from "@/hooks/use-theme-mode";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function ResumeAnalyzer() {
     const [file, setFile] = useState(null);
@@ -13,6 +15,7 @@ export default function ResumeAnalyzer() {
     const [result, setResult] = useState("");
     const [scrollY, setScrollY] = useState(0);
     const [isVisible, setIsVisible] = useState({ hero: false, upload: false, results: false });
+    const { isLight } = useThemeMode();
 
     const { data: session, status } = useSession();
     const router = useRouter();
@@ -141,23 +144,26 @@ export default function ResumeAnalyzer() {
     };
 
     return (
-        <div className="min-h-screen bg-background text-foreground relative overflow-hidden font-sans selection:bg-primary/30 transition-colors duration-300">
+        <div className={`min-h-screen relative overflow-hidden font-sans ${isLight ? "bg-[#f8fafc] text-slate-900 selection:bg-emerald-500/20" : "bg-black text-white selection:bg-emerald-500/30"}`}>
             {/* Background */}
             <div className="inset-0 z-0 fixed pointer-events-none">
-                <div className="absolute inset-0 bg-[linear-gradient(to_bottom_right,rgba(15,23,42,0.04),transparent_40%),linear-gradient(to_top_left,rgba(15,23,42,0.04),transparent_35%)] dark:bg-[linear-gradient(to_bottom_right,rgba(255,255,255,0.03),transparent_40%),linear-gradient(to_top_left,rgba(255,255,255,0.03),transparent_35%)]"></div>
-                <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[100px]" style={{ transform: `translateY(${scrollY * 0.1}px)` }}></div>
-                <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-secondary/20 rounded-full blur-[100px]" style={{ transform: `translateY(${-scrollY * 0.1}px)` }}></div>
+                <div className={`absolute inset-0 ${isLight ? "bg-gradient-to-br from-white via-slate-50 to-slate-100" : "bg-gradient-to-br from-slate-950 via-black to-slate-950"}`}></div>
+                <div className={`absolute top-0 left-1/4 w-96 h-96 rounded-full blur-[100px] ${isLight ? "bg-emerald-300/20" : "bg-emerald-600/10"}`} style={{ transform: `translateY(${scrollY * 0.1}px)` }}></div>
+                <div className={`absolute bottom-0 right-1/4 w-80 h-80 rounded-full blur-[100px] ${isLight ? "bg-teal-300/20" : "bg-teal-600/10"}`} style={{ transform: `translateY(${-scrollY * 0.1}px)` }}></div>
             </div>
 
             <div className="relative z-10">
+                <div className="px-4 sm:px-6 lg:px-8 pt-6 flex justify-end">
+                    <ThemeToggle />
+                </div>
                 <section className="px-4 sm:px-6 lg:px-8 py-12">
                     <div className="max-w-5xl mx-auto">
                         <div className={`transition-all duration-1000 ease-out ${isVisible.upload ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
-                            <div className="relative p-8 bg-card border border-border rounded-3xl shadow-2xl">
+                            <div className={`relative p-8 rounded-3xl shadow-2xl ${isLight ? "bg-white border border-slate-200" : "bg-[#0A0A0A] border border-emerald-500/20"}`}>
 
                                 <div className="text-center mb-8">
-                                    <h2 className="text-3xl font-bold mb-2">Resume Audit</h2>
-                                    <p className="text-muted-foreground">Upload your resume for instant AI scoring and feedback</p>
+                                    <h2 className={`text-3xl font-bold mb-2 ${isLight ? "text-slate-950" : "text-white"}`}>Resume Audit</h2>
+                                    <p className={isLight ? "text-slate-600" : "text-gray-400"}>Upload your resume for instant AI scoring and feedback</p>
                                 </div>
 
                                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -165,36 +171,36 @@ export default function ResumeAnalyzer() {
                                         <div className="relative group cursor-pointer">
                                             {/* ✅ PDF aur DOCX dono accept */}
                                             <input type="file" accept=".docx,.pdf" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 z-20 cursor-pointer" />
-                                            <div className="border-2 border-dashed border-border rounded-2xl h-64 flex flex-col items-center justify-center transition-all group-hover:border-primary/50 group-hover:bg-primary/5">
-                                                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4 text-primary group-hover:scale-110 transition-transform">
+                                            <div className={`border-2 border-dashed rounded-2xl h-64 flex flex-col items-center justify-center transition-all group-hover:bg-emerald-500/5 ${isLight ? "border-slate-200 bg-slate-50 group-hover:border-emerald-400" : "border-gray-700 group-hover:border-emerald-500"}`}>
+                                                <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 text-emerald-500 group-hover:scale-110 transition-transform ${isLight ? "bg-white border border-slate-200" : "bg-gray-800"}`}>
                                                     <UploadCloud size={32} />
                                                 </div>
-                                                <h3 className="text-xl font-semibold text-foreground mb-2">Drop your resume here</h3>
+                                                <h3 className={`text-xl font-semibold mb-2 ${isLight ? "text-slate-950" : "text-white"}`}>Drop your resume here</h3>
                                                 {/* ✅ Updated text */}
-                                                <p className="text-muted-foreground">Supports .docx and .pdf files</p>
+                                                <p className={isLight ? "text-slate-500" : "text-gray-500"}>Supports .docx and .pdf files</p>
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="bg-card border border-border rounded-xl p-6 flex items-center justify-between">
+                                        <div className={`rounded-xl p-6 flex items-center justify-between ${isLight ? "bg-white border border-slate-200" : "bg-[#111] border border-gray-700"}`}>
                                             <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 bg-primary/10 text-primary rounded-lg flex items-center justify-center border border-primary/20">
+                                                <div className="w-12 h-12 bg-emerald-500/10 text-emerald-400 rounded-lg flex items-center justify-center border border-emerald-500/20">
                                                     <FileText size={24} />
                                                 </div>
                                                 <div>
-                                                    <p className="text-foreground text-lg font-medium">{fileName}</p>
-                                                    <p className="text-sm text-primary flex items-center gap-2 mt-1">
+                                                    <p className={isLight ? "text-slate-950 text-lg font-medium" : "text-white text-lg font-medium"}>{fileName}</p>
+                                                    <p className={`text-sm flex items-center gap-2 mt-1 ${isLight ? "text-emerald-600" : "text-emerald-400"}`}>
                                                         <CheckCircle className="w-4 h-4" /> Ready for scan
                                                     </p>
                                                 </div>
                                             </div>
-                                            <button type="button" onClick={() => { setFile(null); setFileName(""); setResult(""); }} className="p-2 hover:bg-muted rounded-lg text-muted-foreground hover:text-foreground">
+                                            <button type="button" onClick={() => { setFile(null); setFileName(""); setResult(""); }} className={`p-2 rounded-lg transition-colors ${isLight ? "text-slate-400 hover:bg-slate-100 hover:text-slate-950" : "text-gray-400 hover:bg-gray-800 hover:text-white"}`}>
                                                 <X size={24} />
                                             </button>
                                         </div>
                                     )}
 
                                     {error && (
-                                        <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3 text-red-600 dark:text-red-400">
+                                        <div className={`p-4 rounded-xl flex items-center gap-3 ${isLight ? "bg-red-50 border border-red-200 text-red-700" : "bg-red-900/20 border border-red-900/50 text-red-400"}`}>
                                             <AlertCircle size={20} />
                                             <span>{error}</span>
                                         </div>
@@ -204,7 +210,7 @@ export default function ResumeAnalyzer() {
                                         <button
                                             type="submit"
                                             disabled={!file || loading}
-                                            className="px-10 py-4 bg-foreground text-background hover:opacity-90 font-bold rounded-xl transition-all flex items-center justify-center gap-3 disabled:opacity-50 shadow-lg shadow-black/10 cursor-pointer"
+                                            className={`px-10 py-4 font-bold rounded-xl transition-all flex items-center justify-center gap-3 disabled:opacity-50 shadow-lg cursor-pointer ${isLight ? "bg-slate-950 text-white hover:bg-slate-800 shadow-slate-300/60" : "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-emerald-900/20"}`}
                                         >
                                             {loading ? <><Loader2 className="w-5 h-5 animate-spin" /> Analyzing...</> : <>Run Analysis <ArrowRight className="w-5 h-5" /></>}
                                         </button>
@@ -220,32 +226,32 @@ export default function ResumeAnalyzer() {
                     <section className="px-4 sm:px-6 lg:px-8 pb-16">
                         <div className="max-w-5xl mx-auto">
                             <div className={`transition-all duration-1000 ease-out ${isVisible.results ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
-                                <div className="relative p-8 bg-card border border-border rounded-3xl shadow-2xl">
+                                <div className={`relative p-8 rounded-3xl shadow-2xl ${isLight ? "bg-white border border-slate-200" : "bg-[#0A0A0A] border border-emerald-500/20"}`}>
 
-                                    <div className="flex items-center gap-4 mb-8 border-b border-border pb-6">
-                                        <div className="p-3 bg-primary/10 rounded-xl text-primary border border-primary/20">
+                                    <div className={`flex items-center gap-4 mb-8 pb-6 ${isLight ? "border-b border-slate-200" : "border-b border-gray-800"}`}>
+                                        <div className="p-3 bg-emerald-500/10 rounded-xl text-emerald-500 border border-emerald-500/20">
                                             <Zap className="w-6 h-6" />
                                         </div>
                                         <div>
-                                            <h2 className="text-2xl font-bold text-foreground">Analysis Report</h2>
-                                            <p className="text-muted-foreground text-sm">Actionable feedback for improvement</p>
+                                            <h2 className={`text-2xl font-bold ${isLight ? "text-slate-950" : "text-white"}`}>Analysis Report</h2>
+                                            <p className={`text-sm ${isLight ? "text-slate-600" : "text-gray-400"}`}>Actionable feedback for improvement</p>
                                         </div>
                                     </div>
 
                                     <div
                                         dangerouslySetInnerHTML={renderMarkdown(result)}
                                         className="
-                                            text-muted-foreground text-lg leading-loose
-                                            [&>h1]:text-primary [&>h1]:text-4xl [&>h1]:font-bold [&>h1]:mt-10 [&>h1]:mb-6
-                                            [&>h2]:text-foreground [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:mt-10 [&>h2]:mb-5 [&>h2]:border-l-4 [&>h2]:border-primary [&>h2]:pl-4
-                                            [&>h3]:text-foreground [&>h3]:text-xl [&>h3]:font-semibold [&>h3]:mt-8 [&>h3]:mb-4
+                                            text-lg leading-loose
+                                            [&>h1]:text-emerald-400 [&>h1]:text-4xl [&>h1]:font-bold [&>h1]:mt-10 [&>h1]:mb-6
+                                            [&>h2]:text-slate-950 [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:mt-10 [&>h2]:mb-5 [&>h2]:border-l-4 [&>h2]:border-emerald-500 [&>h2]:pl-4
+                                            [&>h3]:text-emerald-700 [&>h3]:text-xl [&>h3]:font-semibold [&>h3]:mt-8 [&>h3]:mb-4
                                             [&>p]:mb-6 [&>p]:leading-8
                                             [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mb-8 [&>ul]:space-y-3
                                             [&>ol]:list-decimal [&>ol]:pl-6 [&>ol]:mb-8 [&>ol]:space-y-3
-                                            [&>li]:pl-2 [&>li]:marker:text-primary
-                                            [&>strong]:text-foreground [&>strong]:font-bold
-                                            [&>code]:bg-muted [&>code]:text-foreground [&>code]:px-2 [&>code]:py-1 [&>code]:rounded-md
-                                            [&>blockquote]:bg-muted/50 [&>blockquote]:border-l-4 [&>blockquote]:border-primary [&>blockquote]:p-6 [&>blockquote]:rounded-r-xl [&>blockquote]:my-8
+                                            [&>li]:pl-2 [&>li]:marker:text-emerald-500
+                                            [&>strong]:text-slate-950 [&>strong]:font-bold
+                                            [&>code]:bg-slate-100 [&>code]:text-emerald-700 [&>code]:px-2 [&>code]:py-1 [&>code]:rounded-md
+                                            [&>blockquote]:bg-slate-50 [&>blockquote]:border-l-4 [&>blockquote]:border-emerald-500 [&>blockquote]:p-6 [&>blockquote]:rounded-r-xl [&>blockquote]:my-8
                                         "
                                     />
                                 </div>

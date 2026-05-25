@@ -19,11 +19,12 @@ import {
   Quote,
   Star
 } from 'lucide-react';
+import { useThemeMode } from "@/hooks/use-theme-mode";
 
 // --- UI Components ---
 
 // 1. Spotlight Card (Interactive Card)
-function SpotlightCard({ children, className = "", onClick }) {
+function SpotlightCard({ children, className = "", onClick, isLight = false }) {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
@@ -36,7 +37,7 @@ function SpotlightCard({ children, className = "", onClick }) {
   return (
     <div
       onClick={onClick}
-      className={`relative border border-border bg-card/80 overflow-hidden group ${className}`}
+        className={`relative overflow-hidden group ${isLight ? "border border-slate-200 bg-white/90 shadow-[0_20px_60px_-25px_rgba(15,23,42,0.18)]" : "border border-white/10 bg-neutral-900/80"} ${className}`}
       onMouseMove={handleMouseMove}
     >
       <motion.div
@@ -45,7 +46,7 @@ function SpotlightCard({ children, className = "", onClick }) {
           background: useMotionTemplate`
             radial-gradient(
               650px circle at ${mouseX}px ${mouseY}px,
-              rgba(59, 130, 246, 0.15),
+              ${isLight ? "rgba(59, 130, 246, 0.12)" : "rgba(59, 130, 246, 0.15)"},
               transparent 80%
             )
           `,
@@ -57,11 +58,11 @@ function SpotlightCard({ children, className = "", onClick }) {
 }
 
 // 2. Fixed Background (Z-Index 0 to stay behind) - Responsive
-const GridBackground = () => (
-  <div className="fixed inset-0 z-0 pointer-events-none bg-background">
-    <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(15,23,42,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.06)_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:20px_20px] sm:bg-[size:24px_24px] md:bg-[size:32px_32px]" />
-    <div className="absolute top-0 left-0 w-full h-[40vh] sm:h-[50vh] md:h-[60vh] bg-primary/10 blur-[60px] sm:blur-[90px] md:blur-[120px] rounded-full mix-blend-screen" />
-    <div className="absolute bottom-0 right-0 w-full h-[40vh] sm:h-[50vh] md:h-[60vh] bg-secondary/20 blur-[60px] sm:blur-[90px] md:blur-[120px] rounded-full mix-blend-screen" />
+const GridBackground = ({ isLight = false }) => (
+  <div className={`fixed inset-0 z-0 pointer-events-none ${isLight ? "bg-[#f8fafc]" : "bg-[#050505]"}`}>
+    <div className={`absolute inset-0 bg-[size:20px_20px] sm:bg-[size:24px_24px] md:bg-[size:32px_32px] ${isLight ? "bg-[linear-gradient(to_right,#0f172a08_1px,transparent_1px),linear-gradient(to_bottom,#0f172a08_1px,transparent_1px)]" : "bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)]"}`} />
+    <div className={`absolute top-0 left-0 w-full h-[40vh] sm:h-[50vh] md:h-[60vh] blur-[60px] sm:blur-[90px] md:blur-[120px] rounded-full ${isLight ? "bg-blue-400/12 mix-blend-multiply" : "bg-blue-600/10 mix-blend-screen"}`} />
+    <div className={`absolute bottom-0 right-0 w-full h-[40vh] sm:h-[50vh] md:h-[60vh] blur-[60px] sm:blur-[90px] md:blur-[120px] rounded-full ${isLight ? "bg-violet-400/10 mix-blend-multiply" : "bg-purple-600/5 mix-blend-screen"}`} />
   </div>
 );
 
@@ -150,6 +151,7 @@ const testimonials = [
 const Home = () => {
   const { data: session } = useSession();
   const router = useRouter();
+  const { isLight } = useThemeMode();
 
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
 
@@ -165,10 +167,10 @@ const Home = () => {
 
   return (
     // Added overflow-x-hidden to prevent horizontal scroll issues on mobile
-    <div className="relative min-h-screen bg-background text-foreground font-sans selection:bg-blue-500/30 overflow-x-hidden transition-colors duration-300">
+    <div className={`relative min-h-screen font-sans overflow-x-hidden ${isLight ? "bg-[#f8fafc] text-slate-900 selection:bg-blue-500/20" : "bg-[#050505] text-slate-200 selection:bg-blue-500/30"}`}>
 
       {/* Background is Z-0, content will be Z-10 */}
-      <GridBackground />
+      <GridBackground isLight={isLight} />
 
       {/* 1. HERO SECTION (Split Layout: Text Left, Visual Right) */}
       <section className="relative z-10 pt-20 sm:pt-24 md:pt-28 lg:pt-32 pb-12 sm:pb-16 md:pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
@@ -182,7 +184,7 @@ const Home = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-foreground mb-4 sm:mb-5 md:mb-6 leading-[1.1]"
+              className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight mb-4 sm:mb-5 md:mb-6 leading-[1.1] ${isLight ? "text-slate-950" : "text-white"}`}
             >
               Your Resume is <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">
@@ -195,7 +197,7 @@ const Home = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-xl mb-6 sm:mb-7 md:mb-8 leading-relaxed"
+              className={`text-base sm:text-lg md:text-xl max-w-xl mb-6 sm:mb-7 md:mb-8 leading-relaxed ${isLight ? "text-slate-600" : "text-slate-400"}`}
             >
               Stop guessing. Rezumix uses AI to fix your resume errors,
               prepare you for interviews, and help you get hired faster.
@@ -209,23 +211,23 @@ const Home = () => {
               className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto mb-8 sm:mb-10 md:mb-12"
             >
               <Link href="/login" className="w-full sm:w-auto">
-                <button className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-foreground text-background font-bold rounded-xl hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_-5px_rgba(0,0,0,0.15)] cursor-pointer text-sm sm:text-base touch-manipulation">
+                <button className={`w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 font-bold rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer text-sm sm:text-base touch-manipulation ${isLight ? "bg-slate-950 text-white hover:bg-slate-800 shadow-[0_0_24px_-10px_rgba(15,23,42,0.35)]" : "bg-white text-black hover:bg-slate-200 shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)]"}`}>
                   Fix My Resume Free <ArrowRight className="w-4 h-4" />
                 </button>
               </Link>
               <Link href="/rezumix.apk" className="w-full sm:w-auto ">
-                <button className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-card text-foreground border border-border font-medium rounded-xl hover:bg-muted transition-all backdrop-blur-sm cursor-pointer text-sm sm:text-base touch-manipulation">
+                <button className={`w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 border font-medium rounded-xl transition-all backdrop-blur-sm cursor-pointer text-sm sm:text-base touch-manipulation ${isLight ? "bg-white text-slate-900 border-slate-200 hover:bg-slate-50" : "bg-white/5 text-white border-white/10 hover:bg-white/10"}`}>
                   Download Rezumix App
                 </button>
               </Link>
             </motion.div>
 
             {/* Stats (Left Aligned now) */}
-            <div className="grid grid-cols-3 gap-4 sm:gap-6 md:gap-8 border-t border-border pt-6 sm:pt-7 md:pt-8 w-full max-w-md">
+            <div className={`grid grid-cols-3 gap-4 sm:gap-6 md:gap-8 pt-6 sm:pt-7 md:pt-8 w-full max-w-md ${isLight ? "border-t border-slate-200" : "border-t border-white/5"}`}>
               {stats.slice(0, 3).map((s, i) => (
                 <div key={i} className="flex flex-col items-center lg:items-start">
-                  <span className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">{s.val}</span>
-                  <span className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider">{s.label}</span>
+                  <span className={`text-xl sm:text-2xl md:text-3xl font-bold ${isLight ? "text-slate-950" : "text-white"}`}>{s.val}</span>
+                  <span className={`text-[10px] sm:text-xs uppercase tracking-wider ${isLight ? "text-slate-500" : "text-slate-500"}`}>{s.label}</span>
                 </div>
               ))}
             </div>
@@ -236,7 +238,7 @@ const Home = () => {
             {/* The SVG Container */}
             <div className="relative w-[280px] sm:w-[320px] md:w-[380px] lg:w-[450px] xl:w-[500px] aspect-square">
               {/* Glow Effect behind SVG */}
-              <div className="absolute inset-0 bg-blue-500/20 blur-[80px] rounded-full" />
+              <div className={`absolute inset-0 blur-[80px] rounded-full ${isLight ? "bg-blue-300/20" : "bg-blue-500/20"}`} />
 
               <svg viewBox="0 0 200 200" className="w-full h-full relative z-10 drop-shadow-2xl" xmlns="http://www.w3.org/2000/svg">
                 <defs>
@@ -253,7 +255,7 @@ const Home = () => {
                   transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
                   style={{ originX: "100px", originY: "100px" }}
                 >
-                  <circle cx="100" cy="100" r="80" stroke="#1e293b" strokeWidth="1" fill="none" />
+                  <circle cx="100" cy="100" r="80" stroke={isLight ? "#cbd5e1" : "#1e293b"} strokeWidth="1" fill="none" />
                   <circle cx="100" cy="100" r="80" stroke="#3b82f6" strokeWidth="2" strokeDasharray="20 160" strokeLinecap="round" />
                 </motion.g>
 
@@ -263,16 +265,16 @@ const Home = () => {
                   transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                   style={{ originX: "100px", originY: "100px" }}
                 >
-                  <circle cx="100" cy="100" r="60" stroke="#1e293b" strokeWidth="1" fill="none" strokeDasharray="4 4" />
+                  <circle cx="100" cy="100" r="60" stroke={isLight ? "#cbd5e1" : "#1e293b"} strokeWidth="1" fill="none" strokeDasharray="4 4" />
                   <path d="M100 40 L100 60 M100 140 L100 160 M40 100 L60 100 M140 100 L160 100" stroke="#3b82f6" strokeWidth="2" />
                 </motion.g>
 
                 {/* Central Resume Icon / Scan Target */}
                 <g transform="translate(75, 70)">
-                  <rect x="10" y="5" width="30" height="40" rx="2" fill="#1e293b" stroke="#475569" strokeWidth="1" />
-                  <line x1="15" y1="15" x2="35" y2="15" stroke="#475569" strokeWidth="1" />
-                  <line x1="15" y1="20" x2="35" y2="20" stroke="#475569" strokeWidth="1" />
-                  <line x1="15" y1="25" x2="25" y2="25" stroke="#475569" strokeWidth="1" />
+                  <rect x="10" y="5" width="30" height="40" rx="2" fill={isLight ? "#e2e8f0" : "#1e293b"} stroke={isLight ? "#94a3b8" : "#475569"} strokeWidth="1" />
+                  <line x1="15" y1="15" x2="35" y2="15" stroke={isLight ? "#94a3b8" : "#475569"} strokeWidth="1" />
+                  <line x1="15" y1="20" x2="35" y2="20" stroke={isLight ? "#94a3b8" : "#475569"} strokeWidth="1" />
+                  <line x1="15" y1="25" x2="25" y2="25" stroke={isLight ? "#94a3b8" : "#475569"} strokeWidth="1" />
 
                   {/* Scanning Beam */}
                   <motion.rect
@@ -303,11 +305,11 @@ const Home = () => {
 
 
       {/* 2. FEATURES SECTION */}
-      <section className="relative z-10 py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8">
+      <section className={`relative z-10 py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 ${isLight ? "bg-white/50 border-y border-slate-200" : ""}`}>
         <div className="max-w-7xl mx-auto">
           <div className="mb-8 sm:mb-10 md:mb-12 lg:mb-20 text-center md:text-left">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-3 sm:mb-4">Everything You Need</h2>
-            <p className="text-muted-foreground text-base sm:text-lg">From application to offer letter, we got you covered.</p>
+            <h2 className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 ${isLight ? "text-slate-950" : "text-white"}`}>Everything You Need</h2>
+            <p className={`${isLight ? "text-slate-600" : "text-slate-400"} text-base sm:text-lg`}>From application to offer letter, we got you covered.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-5 lg:gap-6 auto-rows-[minmax(220px,auto)] sm:auto-rows-[minmax(240px,auto)] md:auto-rows-[minmax(250px,auto)]">
@@ -315,16 +317,17 @@ const Home = () => {
               <SpotlightCard
                 key={idx}
                 className={`rounded-2xl sm:rounded-3xl p-4 sm:p-5 md:p-6 lg:p-8 flex flex-col justify-between ${feature.colSpan}`}
+                isLight={isLight}
               >
                 <div className={`absolute top-0 right-0 w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 bg-gradient-to-br ${feature.gradient} blur-[40px] sm:blur-[50px] md:blur-[60px] opacity-50`} />
 
                 <div className="relative z-10">
-                  <div className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-lg sm:rounded-xl bg-muted border border-border flex items-center justify-center mb-4 sm:mb-5 md:mb-6 text-foreground">
+                  <div className={`w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-lg sm:rounded-xl flex items-center justify-center mb-4 sm:mb-5 md:mb-6 ${isLight ? "bg-slate-100 border border-slate-200 text-slate-900" : "bg-white/5 border border-white/10 text-white"}`}>
                     <feature.icon className="w-5 h-5 sm:w-5.5 sm:h-5.5 md:w-6 md:h-6" />
                   </div>
 
-                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground mb-2 sm:mb-2.5 md:mb-3">{feature.title}</h3>
-                  <p className="text-muted-foreground leading-relaxed mb-4 sm:mb-5 md:mb-6 text-sm sm:text-base">
+                  <h3 className={`text-lg sm:text-xl md:text-2xl font-bold mb-2 sm:mb-2.5 md:mb-3 ${isLight ? "text-slate-950" : "text-white"}`}>{feature.title}</h3>
+                  <p className={`leading-relaxed mb-4 sm:mb-5 md:mb-6 text-sm sm:text-base ${isLight ? "text-slate-600" : "text-slate-400"}`}>
                     {feature.desc}
                   </p>
                 </div>
@@ -347,11 +350,11 @@ const Home = () => {
 
 
       {/* 3. HOW IT WORKS */}
-      <section className="relative z-10 py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-muted/30 border-y border-border">
+      <section className={`relative z-10 py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 ${isLight ? "bg-slate-50 border-y border-slate-200" : "bg-neutral-900/30 border-y border-white/5"}`}>
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-10 sm:mb-12 md:mb-16">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3 sm:mb-4">How It Works</h2>
-            <p className="text-muted-foreground text-sm sm:text-base">3 simple steps to your dream job.</p>
+            <h2 className={`text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 ${isLight ? "text-slate-950" : "text-white"}`}>How It Works</h2>
+            <p className={`${isLight ? "text-slate-600" : "text-slate-400"} text-sm sm:text-base`}>3 simple steps to your dream job.</p>
           </div>
 
           <div className="space-y-8 sm:space-y-10 md:space-y-12 relative">
@@ -364,12 +367,12 @@ const Home = () => {
               { title: "Get Hired", desc: "Follow our step-by-step checklist to fix errors and apply.", icon: CheckCircle2 }
             ].map((step, i) => (
               <div key={i} className="flex gap-4 sm:gap-6 md:gap-10 relative">
-                <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 rounded-full bg-card border border-border flex items-center justify-center z-10 relative shadow-xl">
-                  <step.icon className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-blue-600 dark:text-blue-400" />
+                <div className={`flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 rounded-full flex items-center justify-center z-10 relative shadow-xl ${isLight ? "bg-white border border-slate-200" : "bg-[#0A0A0A] border border-white/10"}`}>
+                  <step.icon className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-blue-400" />
                 </div>
                 <div className="pt-1 sm:pt-2 flex-1 min-w-0">
-                  <h3 className="text-base sm:text-lg md:text-xl font-bold text-foreground mb-1 sm:mb-2">{step.title}</h3>
-                  <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">{step.desc}</p>
+                  <h3 className={`text-base sm:text-lg md:text-xl font-bold mb-1 sm:mb-2 ${isLight ? "text-slate-950" : "text-white"}`}>{step.title}</h3>
+                  <p className={`${isLight ? "text-slate-600" : "text-slate-400"} leading-relaxed text-sm sm:text-base`}>{step.desc}</p>
                 </div>
               </div>
             ))}
@@ -379,19 +382,19 @@ const Home = () => {
 
 
       {/* 4. FAQ SECTION */}
-      <section className="relative z-10 py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8">
+      <section className={`relative z-10 py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 ${isLight ? "bg-white" : ""}`}>
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-8 sm:mb-10 text-center">Questions?</h2>
+          <h2 className={`text-2xl sm:text-3xl md:text-4xl font-bold mb-8 sm:mb-10 text-center ${isLight ? "text-slate-950" : "text-white"}`}>Questions?</h2>
           <div className="space-y-3 sm:space-y-4">
             {faqs.map((item, i) => (
-              <div key={i} className="bg-card border border-border rounded-xl sm:rounded-2xl overflow-hidden">
+              <div key={i} className={`rounded-xl sm:rounded-2xl overflow-hidden ${isLight ? "bg-white border border-slate-200 shadow-sm" : "bg-[#0A0A0A] border border-white/5"}`}>
                 <button
                   onClick={() => toggleFaq(i)}
-                  className="w-full flex justify-between items-center p-4 sm:p-5 md:p-6 text-left focus:outline-none hover:bg-muted transition-colors touch-manipulation"
+                  className={`w-full flex justify-between items-center p-4 sm:p-5 md:p-6 text-left focus:outline-none transition-colors touch-manipulation ${isLight ? "hover:bg-slate-50" : "hover:bg-white/5"}`}
                 >
-                  <span className="font-medium text-foreground text-sm sm:text-base md:text-lg pr-4">{item.q}</span>
+                  <span className={`font-medium text-sm sm:text-base md:text-lg pr-4 ${isLight ? "text-slate-900" : "text-slate-200"}`}>{item.q}</span>
                   <ChevronDown
-                    className={`w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground transition-transform duration-300 flex-shrink-0 ${openFaqIndex === i ? 'rotate-180' : ''}`}
+                    className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300 flex-shrink-0 ${isLight ? "text-slate-400" : "text-slate-500"} ${openFaqIndex === i ? 'rotate-180' : ''}`}
                   />
                 </button>
                 <AnimatePresence>
@@ -403,7 +406,7 @@ const Home = () => {
                       transition={{ duration: 0.3 }}
                       className="overflow-hidden"
                     >
-                      <div className="px-4 sm:px-5 md:px-6 pb-4 sm:pb-5 md:pb-6 pt-0 text-muted-foreground leading-relaxed border-t border-border mt-2 text-sm sm:text-base">
+                      <div className={`px-4 sm:px-5 md:px-6 pb-4 sm:pb-5 md:pb-6 pt-0 leading-relaxed border-t mt-2 text-sm sm:text-base ${isLight ? "text-slate-600 border-slate-200" : "text-slate-400 border-white/5"}`}>
                         {item.a}
                       </div>
                     </motion.div>
@@ -416,28 +419,28 @@ const Home = () => {
       </section>
 
       {/* 5. SUCCESS STORIES (Fixed Visibility) */}
-      <section className="relative z-10 py-12 sm:py-16 md:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 border-t border-border bg-card/60">
+      <section className={`relative z-10 py-12 sm:py-16 md:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 border-t ${isLight ? "bg-slate-50 border-slate-200" : "border-white/5 bg-[#080808]"}`}>
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-10 sm:mb-12 md:mb-16">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4 sm:mb-5 md:mb-6">
-              Real Results. <span className="text-blue-600 dark:text-blue-400">Real Jobs.</span>
+            <h2 className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-5 md:mb-6 ${isLight ? "text-slate-950" : "text-white"}`}>
+              Real Results. <span className="text-blue-400">Real Jobs.</span>
             </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base md:text-lg px-4">
+            <p className={`max-w-2xl mx-auto text-sm sm:text-base md:text-lg px-4 ${isLight ? "text-slate-600" : "text-slate-400"}`}>
               Join thousands of professionals who stopped guessing and started getting hired.
             </p>
           </div>
 
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
             {testimonials.map((t, i) => (
-              <div key={i} className="bg-card border border-border p-5 sm:p-6 md:p-7 lg:p-8 rounded-2xl sm:rounded-3xl relative hover:border-border/80 transition-colors">
-                <p className="text-foreground mb-4 sm:mb-5 md:mb-6 leading-relaxed font-medium text-sm sm:text-base">{t.quote}</p>
-                <div className="flex items-center gap-3 sm:gap-4 mt-auto border-t border-border pt-3 sm:pt-4">
+              <div key={i} className={`p-5 sm:p-6 md:p-7 lg:p-8 rounded-2xl sm:rounded-3xl relative transition-colors ${isLight ? "bg-white border border-slate-200 shadow-sm hover:border-slate-300" : "bg-neutral-900/50 border border-white/10 hover:border-white/20"}`}>
+                <p className={`mb-4 sm:mb-5 md:mb-6 leading-relaxed font-medium text-sm sm:text-base ${isLight ? "text-slate-700" : "text-slate-200"}`}>{t.quote}</p>
+                <div className={`flex items-center gap-3 sm:gap-4 mt-auto pt-3 sm:pt-4 ${isLight ? "border-t border-slate-200" : "border-t border-white/5"}`}>
                   <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center font-bold text-white text-sm flex-shrink-0">
                     {t.author[0]}
                   </div>
                   <div className="min-w-0">
-                    <div className="text-foreground font-bold text-sm truncate">{t.author}</div>
-                    <div className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1 mt-0.5">
+                    <div className={`font-bold text-sm truncate ${isLight ? "text-slate-950" : "text-white"}`}>{t.author}</div>
+                    <div className="text-xs text-blue-400 flex items-center gap-1 mt-0.5">
                     </div>
                   </div>
                 </div>
@@ -447,7 +450,7 @@ const Home = () => {
 
           <div className="mt-12 sm:mt-16 md:mt-20 text-center px-4">
             <Link href="/login">
-              <button className="px-8 sm:px-10 py-4 sm:py-5 bg-foreground text-background font-bold text-base sm:text-lg rounded-xl hover:scale-105 transition-transform shadow-[0_0_40px_-10px_rgba(0,0,0,0.2)] cursor-pointer touch-manipulation">
+              <button className={`px-8 sm:px-10 py-4 sm:py-5 font-bold text-base sm:text-lg rounded-xl transition-transform cursor-pointer touch-manipulation ${isLight ? "bg-slate-950 text-white hover:scale-105 shadow-[0_0_40px_-10px_rgba(15,23,42,0.25)]" : "bg-white text-black hover:scale-105 shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)]"}`}>
                 Start Your Success Story
               </button>
             </Link>

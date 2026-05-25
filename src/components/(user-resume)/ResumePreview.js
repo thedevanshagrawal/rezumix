@@ -5,8 +5,10 @@ import ClassicTemplate from "@/components/(user-resume)/templates/ClassicTemplat
 import MinimalTemplate from "@/components/(user-resume)/templates/MinimalTemplate";
 import ExecutiveTemplate from "@/components/(user-resume)/templates/ExecutiveTemplate";
 import CreativeTemplate from "@/components/(user-resume)/templates/CreativeTemplate";
+import { useThemeMode } from "@/hooks/use-theme-mode";
 
 export default function ResumePreview({ resumeData, activeTemplate, isSample }) {
+  const { isLight } = useThemeMode();
   const isEmpty =
     !isSample &&
     !resumeData.personalInfo.fullName &&
@@ -17,22 +19,22 @@ export default function ResumePreview({ resumeData, activeTemplate, isSample }) 
     resumeData.education.length === 0;
 
   return (
-    <div className="p-6 flex flex-col items-center bg-gray-950">
+    <div className={`p-6 flex flex-col items-center ${isLight ? "bg-white" : "bg-gray-950"}`}>
       
       {/* Live Preview + Sample Badge */}
       <div className="flex items-center justify-center gap-2 mb-4">
-        <p className="text-xs text-white/30 uppercase tracking-widest">
+        <p className={`text-xs uppercase tracking-widest ${isLight ? "text-slate-500" : "text-white/30"}`}>
           Live Preview
         </p>
         {isSample && (
-          <span className="text-xs bg-blue-500/20 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full">
+            <span className={`text-xs px-2 py-0.5 rounded-full ${isLight ? "bg-blue-500/10 text-blue-700 border border-blue-200" : "bg-blue-500/20 text-blue-300 border border-blue-500/30"}`}>
             Sample
           </span>
         )}
       </div>
 
       {isEmpty ? (
-        <div className="w-full max-w-[680px] aspect-[1/1.414] bg-gray-950 border border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center gap-3 text-white/20">
+        <div className={`w-full max-w-[680px] aspect-[1/1.414] border border-dashed rounded-2xl flex flex-col items-center justify-center gap-3 ${isLight ? "bg-white border-slate-200 text-slate-400" : "bg-gray-950 border-white/10 text-white/20"}`}>
           <svg
             className="w-12 h-12 opacity-30"
             fill="none"
@@ -52,7 +54,7 @@ export default function ResumePreview({ resumeData, activeTemplate, isSample }) 
         <div
           id="resume-preview-root"
           style={{ width: "680px", maxWidth: "100%" }}
-          className="shadow-2xl rounded-lg overflow-hidden"
+          className={`shadow-2xl rounded-lg overflow-hidden ${isLight ? "bg-white" : "bg-transparent"}`}
         >
           {activeTemplate === "modern" && <ModernTemplate data={resumeData} />}
           {activeTemplate === "classic" && <ClassicTemplate data={resumeData} />}

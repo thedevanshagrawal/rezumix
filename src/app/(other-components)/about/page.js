@@ -2,6 +2,7 @@
 import React from "react";
 import { motion, useMotionTemplate, useMotionValue } from "framer-motion";
 import Link from "next/link";
+import { useThemeMode } from "@/hooks/use-theme-mode";
 import {
     FileSearch,
     Compass,
@@ -17,7 +18,7 @@ import {
 // --- Components (Reused from Home for consistency) ---
 
 // 1. Spotlight Card
-function SpotlightCard({ children, className = "" }) {
+function SpotlightCard({ children, className = "", isLight = false }) {
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
 
@@ -29,7 +30,7 @@ function SpotlightCard({ children, className = "" }) {
 
     return (
         <div
-            className={`relative border border-border bg-card/80 overflow-hidden group ${className}`}
+            className={`relative overflow-hidden group ${isLight ? "border border-slate-200 bg-white shadow-sm" : "border border-white/10 bg-neutral-900/50"} ${className}`}
             onMouseMove={handleMouseMove}
         >
             <motion.div
@@ -38,7 +39,7 @@ function SpotlightCard({ children, className = "" }) {
                     background: useMotionTemplate`
             radial-gradient(
               650px circle at ${mouseX}px ${mouseY}px,
-              rgba(59, 130, 246, 0.1),
+              ${isLight ? "rgba(59, 130, 246, 0.12)" : "rgba(59, 130, 246, 0.1)"},
               transparent 80%
             )
           `,
@@ -50,11 +51,11 @@ function SpotlightCard({ children, className = "" }) {
 }
 
 // 2. Background Pattern
-const GridBackground = () => (
-    <div className="fixed inset-0 z-0 pointer-events-none bg-background">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(15,23,42,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.06)_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:32px_32px]" />
-        <div className="absolute top-0 left-0 w-full h-[60vh] bg-primary/5 blur-[120px] rounded-full mix-blend-screen" />
-        <div className="absolute bottom-0 right-0 w-full h-[60vh] bg-secondary/20 blur-[120px] rounded-full mix-blend-screen" />
+const GridBackground = ({ isLight = false }) => (
+    <div className={`fixed inset-0 z-0 pointer-events-none ${isLight ? "bg-[#f8fafc]" : "bg-[#050505]"}`}>
+        <div className={`absolute inset-0 bg-[size:32px_32px] ${isLight ? "bg-[linear-gradient(to_right,#0f172a08_1px,transparent_1px),linear-gradient(to_bottom,#0f172a08_1px,transparent_1px)]" : "bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)]"}`} />
+        <div className={`absolute top-0 left-0 w-full h-[60vh] blur-[120px] rounded-full ${isLight ? "bg-blue-400/10 mix-blend-multiply" : "bg-blue-600/5 mix-blend-screen"}`} />
+        <div className={`absolute bottom-0 right-0 w-full h-[60vh] blur-[120px] rounded-full ${isLight ? "bg-purple-400/10 mix-blend-multiply" : "bg-purple-600/5 mix-blend-screen"}`} />
     </div>
 );
 
@@ -101,10 +102,12 @@ const stats = [
 ];
 
 export default function About() {
-    return (
-        <div className="relative min-h-screen bg-background text-foreground font-sans selection:bg-blue-500/30 overflow-x-hidden transition-colors duration-300">
+    const { isLight } = useThemeMode();
 
-            <GridBackground />
+    return (
+        <div className={`relative min-h-screen font-sans overflow-x-hidden ${isLight ? "bg-[#f8fafc] text-slate-900 selection:bg-blue-500/20" : "bg-[#050505] text-slate-200 selection:bg-blue-500/30"}`}>
+
+            <GridBackground isLight={isLight} />
 
             {/* 1. Hero Section */}
             <section className="relative z-10 pt-32 pb-20 px-6">
@@ -114,14 +117,14 @@ export default function About() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6 }}
                     >
-                        <h1 className="text-4xl md:text-7xl font-bold tracking-tight text-foreground mb-8 leading-[1.1]">
+                        <h1 className={`text-4xl md:text-7xl font-bold tracking-tight mb-8 leading-[1.1] ${isLight ? "text-slate-950" : "text-white"}`}>
                             Empowering Careers with <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
                                 Artificial Intelligence.
                             </span>
                         </h1>
 
-                        <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-16 leading-relaxed">
+                        <p className={`text-lg md:text-xl max-w-3xl mx-auto mb-16 leading-relaxed ${isLight ? "text-slate-600" : "text-slate-400"}`}>
                             Rezumix is transforming how professionals approach their careers.
                             We are democratizing access to top-tier career intelligence that was
                             once available only to executives.
@@ -133,12 +136,12 @@ export default function About() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2, duration: 0.6 }}
-                        className="grid grid-cols-2 md:grid-cols-4 gap-8 border-y border-border py-12 bg-muted/30 backdrop-blur-sm"
+                        className={`grid grid-cols-2 md:grid-cols-4 gap-8 py-12 backdrop-blur-sm ${isLight ? "border-y border-slate-200 bg-white/70" : "border-y border-white/5 bg-white/5"}`}
                     >
                         {stats.map((stat, index) => (
                             <div key={index} className="flex flex-col items-center">
-                                <span className="text-3xl md:text-4xl font-bold text-foreground mb-2">{stat.number}</span>
-                                <span className="text-xs text-muted-foreground uppercase tracking-wider font-medium">{stat.label}</span>
+                                <span className={`text-3xl md:text-4xl font-bold mb-2 ${isLight ? "text-slate-950" : "text-white"}`}>{stat.number}</span>
+                                <span className={`text-xs uppercase tracking-wider font-medium ${isLight ? "text-slate-500" : "text-slate-500"}`}>{stat.label}</span>
                             </div>
                         ))}
                     </motion.div>
@@ -155,12 +158,12 @@ export default function About() {
                         viewport={{ once: true }}
                         className="space-y-6"
                     >
-                        <h2 className="text-3xl md:text-5xl font-bold text-foreground">Our Mission</h2>
-                        <p className="text-muted-foreground text-lg leading-relaxed">
+                        <h2 className={`text-3xl md:text-5xl font-bold ${isLight ? "text-slate-950" : "text-white"}`}>Our Mission</h2>
+                        <p className={`text-lg leading-relaxed ${isLight ? "text-slate-600" : "text-slate-400"}`}>
                             We believe every professional deserves a fair shot at their dream job.
                             Recruitment has become automated, so your application strategy should be too.
                         </p>
-                        <p className="text-muted-foreground text-lg leading-relaxed">
+                        <p className={`text-lg leading-relaxed ${isLight ? "text-slate-600" : "text-slate-400"}`}>
                             Our mission is to build the ultimate <strong>Career Operating System</strong>—a
                             suite of tools that helps you navigate from your first internship to the C-Suite.
                         </p>
@@ -173,10 +176,10 @@ export default function About() {
                         viewport={{ once: true }}
                         className="relative"
                     >
-                        <div className="absolute inset-0 bg-blue-500/20 blur-[80px] rounded-full" />
-                        <div className="relative bg-card border border-border rounded-2xl p-8 backdrop-blur-xl">
-                            <div className="flex items-center justify-between mb-8 border-b border-border pb-4">
-                                <span className="text-sm font-mono text-muted-foreground">SYSTEM_GOALS.JSON</span>
+                        <div className={`absolute inset-0 blur-[80px] rounded-full ${isLight ? "bg-blue-300/20" : "bg-blue-500/20"}`} />
+                        <div className={`relative rounded-2xl p-8 backdrop-blur-xl ${isLight ? "bg-white border border-slate-200 shadow-sm" : "bg-neutral-900 border border-white/10"}`}>
+                            <div className={`flex items-center justify-between mb-8 pb-4 ${isLight ? "border-b border-slate-200" : "border-b border-white/5"}`}>
+                                <span className="text-sm font-mono text-slate-500">SYSTEM_GOALS.JSON</span>
                                 <div className="flex gap-2">
                                     <div className="w-2 h-2 rounded-full bg-red-500/50" />
                                     <div className="w-2 h-2 rounded-full bg-yellow-500/50" />
@@ -190,11 +193,11 @@ export default function About() {
                                     { label: "Skill Transparency", progress: "98%" }
                                 ].map((item, i) => (
                                     <div key={i}>
-                                        <div className="flex justify-between text-sm text-foreground mb-2">
+                                        <div className={`flex justify-between text-sm mb-2 ${isLight ? "text-slate-700" : "text-slate-300"}`}>
                                             <span>{item.label}</span>
-                                            <span className="text-blue-600 dark:text-blue-400">{item.progress}</span>
+                                            <span className="text-blue-400">{item.progress}</span>
                                         </div>
-                                        <div className="h-2 bg-muted rounded-full overflow-hidden">
+                                        <div className={`h-2 rounded-full overflow-hidden ${isLight ? "bg-slate-100" : "bg-white/5"}`}>
                                             <motion.div
                                                 initial={{ width: 0 }}
                                                 whileInView={{ width: item.progress }}
@@ -211,25 +214,25 @@ export default function About() {
             </section>
 
             {/* 3. Features Bento Grid */}
-            <section className="relative z-10 py-24 px-6 bg-muted/20 border-y border-border">
+            <section className={`relative z-10 py-24 px-6 ${isLight ? "bg-white/70 border-y border-slate-200" : "bg-neutral-900/20 border-y border-white/5"}`}>
                 <div className="max-w-7xl mx-auto">
                     <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-6">What Makes Us Different</h2>
-                        <p className="text-muted-foreground text-lg">Not just a resume builder. A full career engine.</p>
+                        <h2 className={`text-3xl md:text-5xl font-bold mb-6 ${isLight ? "text-slate-950" : "text-white"}`}>What Makes Us Different</h2>
+                        <p className={`text-lg ${isLight ? "text-slate-600" : "text-slate-400"}`}>Not just a resume builder. A full career engine.</p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[minmax(200px,auto)]">
                         {features.map((feature, idx) => (
                             <SpotlightCard
                                 key={idx}
-                                className={`${feature.colSpan} p-8 rounded-3xl bg-card flex flex-col justify-between`}
+                                className={`${feature.colSpan} p-8 rounded-3xl flex flex-col justify-between ${isLight ? "bg-white border border-slate-200 shadow-sm" : "bg-neutral-900"}`}
                             >
                                 <div>
-                                    <div className="w-12 h-12 bg-muted border border-border rounded-xl flex items-center justify-center mb-6 text-foreground">
+                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-6 ${isLight ? "bg-slate-100 border border-slate-200 text-slate-900" : "bg-white/5 border border-white/10 text-white"}`}>
                                         <feature.icon className="w-6 h-6" />
                                     </div>
-                                    <h3 className="text-xl font-bold text-foreground mb-3">{feature.title}</h3>
-                                    <p className="text-muted-foreground leading-relaxed text-sm">
+                                    <h3 className={`text-xl font-bold mb-3 ${isLight ? "text-slate-950" : "text-white"}`}>{feature.title}</h3>
+                                    <p className={`leading-relaxed text-sm ${isLight ? "text-slate-600" : "text-slate-400"}`}>
                                         {feature.description}
                                     </p>
                                 </div>
@@ -243,7 +246,7 @@ export default function About() {
             <section className="relative z-10 py-32 px-6">
                 <div className="max-w-6xl mx-auto">
                     <div className="text-center mb-20">
-                        <h2 className="text-3xl md:text-5xl font-bold text-foreground">Built for the Future of Work</h2>
+                        <h2 className={`text-3xl md:text-5xl font-bold ${isLight ? "text-slate-950" : "text-white"}`}>Built for the Future of Work</h2>
                     </div>
 
                     <div className="grid md:grid-cols-3 gap-8">
@@ -252,12 +255,12 @@ export default function About() {
                             { title: "Data Driven", desc: "Insights from 10M+ job descriptions.", icon: Cpu },
                             { title: "Private & Secure", desc: "Your career data belongs to you.", icon: ShieldCheck }
                         ].map((item, i) => (
-                            <SpotlightCard key={i} className="p-8 rounded-2xl bg-card text-center">
+                            <SpotlightCard key={i} isLight={isLight} className={`p-8 rounded-2xl text-center ${isLight ? "bg-white" : "bg-neutral-900/30"}`}>
                                 <div className="w-16 h-16 mx-auto bg-blue-500/10 rounded-full flex items-center justify-center mb-6 text-blue-400">
                                     <item.icon className="w-8 h-8" />
                                 </div>
-                                <h3 className="text-xl font-bold text-foreground mb-3">{item.title}</h3>
-                                <p className="text-muted-foreground">{item.desc}</p>
+                                <h3 className={`text-xl font-bold mb-3 ${isLight ? "text-slate-950" : "text-white"}`}>{item.title}</h3>
+                                <p className={isLight ? "text-slate-600" : "text-slate-400"}>{item.desc}</p>
                             </SpotlightCard>
                         ))}
                     </div>
@@ -267,18 +270,18 @@ export default function About() {
             {/* 5. CTA Section */}
             <section className="relative z-10 py-20 px-6 pb-32">
                 <div className="max-w-4xl mx-auto relative">
-                    <div className="absolute inset-0 bg-blue-600/10 blur-[100px] rounded-full" />
+                    <div className={`absolute inset-0 blur-[100px] rounded-full ${isLight ? "bg-blue-300/15" : "bg-blue-600/10"}`} />
 
-                    <div className="relative bg-[#0A0A0A] border border-white/10 rounded-3xl p-12 text-center overflow-hidden">
-                        <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
+                    <div className={`relative rounded-3xl p-12 text-center overflow-hidden ${isLight ? "bg-white border border-slate-200 shadow-sm" : "bg-[#0A0A0A] border border-white/10"}`}>
+                        <h2 className={`text-3xl md:text-5xl font-bold mb-6 ${isLight ? "text-slate-950" : "text-white"}`}>
                             Ready to Upgrade Your Career?
                         </h2>
-                        <p className="text-lg text-slate-400 mb-10 max-w-xl mx-auto">
+                        <p className={`text-lg mb-10 max-w-xl mx-auto ${isLight ? "text-slate-600" : "text-slate-400"}`}>
                             Join thousands of professionals who have already transformed their careers with Rezumix.
                         </p>
                         <div className="flex flex-col sm:flex-row justify-center gap-4">
                             <Link href="/login">
-                                <button className="w-full sm:w-auto px-8 py-4 bg-white text-black text-lg font-bold rounded-xl hover:bg-slate-200 transition-colors flex items-center justify-center gap-2 cursor-pointer">
+                                <button className={`w-full sm:w-auto px-8 py-4 text-lg font-bold rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer ${isLight ? "bg-slate-950 text-white hover:bg-slate-800" : "bg-white text-black hover:bg-slate-200"}`}>
                                     Get Started <ArrowRight className="w-4 h-4" />
                                 </button>
                             </Link>

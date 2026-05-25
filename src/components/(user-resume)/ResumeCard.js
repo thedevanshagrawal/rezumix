@@ -4,10 +4,12 @@ import { FileText, Eye, Trash2, AlertTriangle, X } from 'lucide-react'
 import { toast } from 'sonner'
 import axios from 'axios'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useThemeMode } from "@/hooks/use-theme-mode"
 
 const ResumeCard = ({ resume, onClick, index }) => {
     const [isDeleting, setIsDeleting] = useState(false)
     const [showConfirmPopup, setShowConfirmPopup] = useState(false)
+    const { isLight } = useThemeMode()
 
     const handleDelete = async () => {
         try {
@@ -31,7 +33,7 @@ const ResumeCard = ({ resume, onClick, index }) => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="group relative bg-gray-950 border border-white/10 rounded-2xl p-6 hover:border-white/20 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
+                className={`group relative rounded-2xl p-6 hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 ${isLight ? "bg-white border border-slate-200 hover:border-slate-300" : "bg-gray-950 border border-white/10 hover:border-white/20"}`}
             >
                 {/* Card Content */}
                 <div className="flex flex-col h-full">
@@ -42,7 +44,7 @@ const ResumeCard = ({ resume, onClick, index }) => {
                         <span className="text-xs font-mono text-slate-500">#{index + 1}</span>
                     </div>
 
-                    <h3 className="text-lg font-bold text-white mb-2 line-clamp-1">
+                    <h3 className={`text-lg font-bold mb-2 line-clamp-1 ${isLight ? "text-slate-950" : "text-white"}`}>
                         Resume Analysis {index + 1}
                     </h3>
                     <p className="text-xs text-slate-500 mb-6">
@@ -52,7 +54,7 @@ const ResumeCard = ({ resume, onClick, index }) => {
                     <div className="mt-auto grid grid-cols-2 gap-3">
                         <button
                             onClick={() => onClick(resume.id)}
-                            className="flex items-center justify-center gap-2 py-2.5 rounded-lg bg-white text-black text-sm font-bold hover:bg-slate-200 transition-colors"
+                            className={`flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold transition-colors ${isLight ? "bg-slate-950 text-white hover:bg-slate-800" : "bg-white text-black hover:bg-slate-200"}`}
                         >
                             <Eye size={16} /> View
                         </button>
@@ -62,11 +64,11 @@ const ResumeCard = ({ resume, onClick, index }) => {
                         >
                             <Trash2 size={16} /> Delete
                         </button>
-                    </div>
+                        <div
                 </div>
             </motion.div>
 
-            {/* Delete Confirmation Modal */}
+                            className={`w-full max-w-sm rounded-2xl p-6 shadow-2xl ${isLight ? "bg-white border border-slate-200" : "bg-[#0A0A0A] border border-white/10"}`}
             <AnimatePresence>
                 {showConfirmPopup && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
@@ -80,15 +82,15 @@ const ResumeCard = ({ resume, onClick, index }) => {
                                 <AlertTriangle className="w-6 h-6 text-red-400" />
                             </div>
                             
-                            <h3 className="text-lg font-bold text-white text-center mb-2">Delete Resume?</h3>
-                            <p className="text-sm text-slate-400 text-center mb-6">
+                            <h3 className={`text-lg font-bold text-center mb-2 ${isLight ? "text-slate-950" : "text-white"}`}>Delete Resume?</h3>
+                            <p className={`text-sm text-center mb-6 ${isLight ? "text-slate-600" : "text-slate-400"}`}>
                                 This action cannot be undone. The analysis data will be permanently removed.
                             </p>
 
                             <div className="flex gap-3">
                                 <button
                                     onClick={() => setShowConfirmPopup(false)}
-                                    className="flex-1 py-3 rounded-xl border border-white/10 text-slate-300 hover:text-white hover:bg-white/5 transition-colors font-medium text-sm"
+                                    className={`flex-1 py-3 rounded-xl transition-colors font-medium text-sm ${isLight ? "border border-slate-200 text-slate-700 hover:text-slate-950 hover:bg-slate-50" : "border border-white/10 text-slate-300 hover:text-white hover:bg-white/5"}`}
                                 >
                                     Cancel
                                 </button>

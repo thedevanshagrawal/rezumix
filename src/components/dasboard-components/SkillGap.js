@@ -5,11 +5,11 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
 import { useSession } from 'next-auth/react';
-import { useTheme } from "@/components/ThemeProvider";
+import { useThemeMode } from "@/hooks/use-theme-mode";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function SkillGap() {
     const { data: session, status } = useSession();
-    const { isDark } = useTheme();
     const [file, setFile] = useState(null);
     const [fileName, setFileName] = useState("");
     const [userjobData, setUserjobData] = useState({ jobRole: "", jobSkill: "" });
@@ -18,6 +18,7 @@ export default function SkillGap() {
     const [result, setResult] = useState("");
     const [scrollY, setScrollY] = useState(0);
     const [isVisible, setIsVisible] = useState({ hero: false, form: false, results: false });
+    const { isLight } = useThemeMode();
 
     useEffect(() => {
         const handleScroll = () => setScrollY(window.scrollY);
@@ -28,26 +29,6 @@ export default function SkillGap() {
     useEffect(() => {
         setTimeout(() => setIsVisible({ hero: true, form: true, results: false }), 300);
     }, []);
-
-    const pageClassName = isDark ? "min-h-screen bg-black text-white" : "min-h-screen bg-slate-50 text-slate-900";
-    const backgroundClassName = isDark ? "absolute inset-0 bg-gradient-to-br from-slate-950 via-black to-slate-950" : "absolute inset-0 bg-gradient-to-br from-slate-100 via-white to-cyan-50";
-    const orbOneClassName = isDark ? "absolute top-0 left-1/4 w-96 h-96 bg-cyan-600/10 rounded-full blur-[100px]" : "absolute top-0 left-1/4 w-96 h-96 bg-cyan-400/10 rounded-full blur-[100px]";
-    const orbTwoClassName = isDark ? "absolute bottom-0 right-1/4 w-80 h-80 bg-blue-600/10 rounded-full blur-[100px]" : "absolute bottom-0 right-1/4 w-80 h-80 bg-blue-400/10 rounded-full blur-[100px]";
-    const cardClassName = isDark ? "bg-[#0A0A0A] border border-cyan-500/20 shadow-xl" : "bg-white border border-cyan-200 shadow-xl shadow-slate-200/70";
-    const innerCardClassName = isDark ? "bg-[#111] border border-gray-700" : "bg-slate-50 border border-slate-200";
-    const subtleBorderClassName = isDark ? "border-gray-800" : "border-slate-200";
-    const headingClassName = isDark ? "text-white" : "text-slate-900";
-    const mutedTextClassName = isDark ? "text-gray-400" : "text-slate-500";
-    const helperTextClassName = isDark ? "text-gray-600" : "text-slate-500";
-    const inputClassName = isDark
-        ? "w-full bg-[#111] border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-cyan-500 outline-none"
-        : "w-full bg-white border border-slate-200 rounded-lg px-4 py-3 text-slate-900 focus:border-cyan-500 outline-none placeholder:text-slate-400";
-    const fileDropClassName = isDark
-        ? "flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-700 rounded-xl cursor-pointer hover:border-cyan-500 hover:bg-cyan-500/5 transition-all"
-        : "flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-300 rounded-xl cursor-pointer hover:border-cyan-500 hover:bg-cyan-500/5 transition-all bg-white/60";
-    const markdownClassName = isDark
-        ? "prose prose-invert max-w-none text-gray-300 text-lg leading-loose [&>h1]:text-cyan-400 [&>h1]:text-4xl [&>h1]:font-bold [&>h1]:mt-10 [&>h1]:mb-6 [&>h2]:text-white [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:mt-10 [&>h2]:mb-5 [&>h2]:border-l-4 [&>h2]:border-cyan-500 [&>h2]:pl-4 [&>h3]:text-cyan-200 [&>h3]:text-xl [&>h3]:font-semibold [&>h3]:mt-8 [&>h3]:mb-4 [&>p]:mb-6 [&>p]:leading-8 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mb-8 [&>ul]:space-y-3 [&>ol]:list-decimal [&>ol]:pl-6 [&>ol]:mb-8 [&>ol]:space-y-3 [&>li]:pl-2 [&>li]:marker:text-cyan-500 [&>strong]:text-white [&>strong]:font-bold [&>blockquote]:bg-gray-900/50 [&>blockquote]:border-l-4 [&>blockquote]:border-cyan-500 [&>blockquote]:p-6 [&>blockquote]:rounded-r-xl [&>blockquote]:my-8"
-        : "prose max-w-none text-slate-700 text-lg leading-loose [&>h1]:text-cyan-700 [&>h1]:text-4xl [&>h1]:font-bold [&>h1]:mt-10 [&>h1]:mb-6 [&>h2]:text-slate-900 [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:mt-10 [&>h2]:mb-5 [&>h2]:border-l-4 [&>h2]:border-cyan-500 [&>h2]:pl-4 [&>h3]:text-cyan-800 [&>h3]:text-xl [&>h3]:font-semibold [&>h3]:mt-8 [&>h3]:mb-4 [&>p]:mb-6 [&>p]:leading-8 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mb-8 [&>ul]:space-y-3 [&>ol]:list-decimal [&>ol]:pl-6 [&>ol]:mb-8 [&>ol]:space-y-3 [&>li]:pl-2 [&>li]:marker:text-cyan-600 [&>strong]:text-slate-900 [&>strong]:font-bold [&>blockquote]:bg-slate-100 [&>blockquote]:border-l-4 [&>blockquote]:border-cyan-500 [&>blockquote]:p-6 [&>blockquote]:rounded-r-xl [&>blockquote]:my-8";
 
     // ✅ PDF aur DOCX dono accept karo
     const handleFileChange = (e) => {
@@ -160,15 +141,18 @@ export default function SkillGap() {
     };
 
     return (
-        <div className={`${pageClassName} relative overflow-hidden font-sans selection:bg-cyan-500/30 transition-colors duration-300`}>
+        <div className={`min-h-screen relative overflow-hidden font-sans ${isLight ? "bg-[#f8fafc] text-slate-900 selection:bg-cyan-500/20" : "bg-black text-white selection:bg-cyan-500/30"}`}>
             {/* Background */}
             <div className="inset-0 z-0 fixed pointer-events-none">
-                <div className={backgroundClassName}></div>
-                <div className={orbOneClassName} style={{ transform: `translateY(${scrollY * 0.1}px)` }}></div>
-                <div className={orbTwoClassName} style={{ transform: `translateY(${-scrollY * 0.1}px)` }}></div>
+                <div className={`absolute inset-0 ${isLight ? "bg-gradient-to-br from-white via-slate-50 to-slate-100" : "bg-gradient-to-br from-slate-950 via-black to-slate-950"}`}></div>
+                <div className={`absolute top-0 left-1/4 w-96 h-96 rounded-full blur-[100px] ${isLight ? "bg-cyan-300/20" : "bg-cyan-600/10"}`} style={{ transform: `translateY(${scrollY * 0.1}px)` }}></div>
+                <div className={`absolute bottom-0 right-1/4 w-80 h-80 rounded-full blur-[100px] ${isLight ? "bg-blue-300/20" : "bg-blue-600/10"}`} style={{ transform: `translateY(${-scrollY * 0.1}px)` }}></div>
             </div>
 
             <div className="relative z-10">
+                <div className="px-4 sm:px-6 lg:px-8 pt-6 flex justify-end">
+                    <ThemeToggle />
+                </div>
                 <section className="px-4 sm:px-6 lg:px-8 py-12">
                     <div className="max-w-6xl mx-auto">
                         <div className={`transition-all duration-1000 ease-out ${isVisible.form ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
@@ -176,46 +160,46 @@ export default function SkillGap() {
 
                                 {/* Left Panel */}
                                 <div className="lg:col-span-2 space-y-6">
-                                    <div className={`${cardClassName} rounded-3xl p-6`}>
-                                        <h3 className={`text-xl font-bold ${headingClassName} mb-4 flex items-center gap-2`}>
+                                    <div className={`rounded-3xl p-6 shadow-xl ${isLight ? "bg-white border border-slate-200" : "bg-[#0A0A0A] border border-cyan-500/20"}`}>
+                                        <h3 className={`text-xl font-bold mb-4 flex items-center gap-2 ${isLight ? "text-slate-950" : "text-white"}`}>
                                             <span className="flex items-center justify-center w-7 h-7 rounded-full bg-cyan-600 text-sm">1</span> Resume
                                         </h3>
 
                                         {!file ? (
-                                            <label className={fileDropClassName}>
-                                                <UploadCloud className={`w-8 h-8 ${mutedTextClassName} mb-2`} />
+                                            <label className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl cursor-pointer transition-all ${isLight ? "border-slate-200 hover:border-cyan-500 hover:bg-cyan-500/5" : "border-gray-700 hover:border-cyan-500 hover:bg-cyan-500/5"}`}>
+                                                <UploadCloud className={`w-8 h-8 mb-2 ${isLight ? "text-slate-400" : "text-gray-500"}`} />
                                                 {/* ✅ Updated text */}
-                                                <p className={`text-sm ${mutedTextClassName}`}>Upload .docx or .pdf</p>
+                                                <p className={isLight ? "text-sm text-slate-500" : "text-sm text-gray-400"}>Upload .docx or .pdf</p>
                                                 <input type="file" accept=".docx,.pdf" className="hidden" onChange={handleFileChange} />
                                             </label>
                                         ) : (
-                                            <div className={`${innerCardClassName} rounded-xl p-4 flex items-center justify-between`}>
+                                            <div className={`rounded-xl p-4 flex items-center justify-between ${isLight ? "bg-white border border-slate-200" : "bg-[#111] border border-gray-700"}`}>
                                                 <div className="flex items-center gap-3">
                                                     <FileText className="w-5 h-5 text-cyan-400" />
-                                                    <span className={`text-sm ${headingClassName} truncate max-w-[120px]`}>{fileName}</span>
+                                                    <span className={`text-sm truncate max-w-[120px] ${isLight ? "text-slate-950" : "text-white"}`}>{fileName}</span>
                                                 </div>
-                                                <button onClick={() => { setFile(null); setFileName(""); }} className={isDark ? "text-gray-400 hover:text-white" : "text-slate-500 hover:text-slate-900"}><X size={16} /></button>
+                                                <button onClick={() => { setFile(null); setFileName(""); }} className={isLight ? "text-slate-400 hover:text-slate-950" : "text-gray-400 hover:text-white"}><X size={16} /></button>
                                             </div>
                                         )}
                                     </div>
 
-                                    <div className={`${cardClassName} rounded-3xl p-6`}>
-                                        <h3 className={`text-xl font-bold ${headingClassName} mb-4 flex items-center gap-2`}>
+                                    <div className={`rounded-3xl p-6 shadow-xl ${isLight ? "bg-white border border-slate-200" : "bg-[#0A0A0A] border border-cyan-500/20"}`}>
+                                        <h3 className={`text-xl font-bold mb-4 flex items-center gap-2 ${isLight ? "text-slate-950" : "text-white"}`}>
                                             <span className="flex items-center justify-center w-7 h-7 rounded-full bg-cyan-600 text-sm">2</span> Goal
                                         </h3>
                                         <div className="space-y-4">
                                             <div className="space-y-1">
-                                                <label className={`text-xs font-medium ${mutedTextClassName} uppercase`}>Target Role</label>
-                                                <input required name="jobRole" type="text" placeholder="e.g. Senior Dev" value={userjobData.jobRole} onChange={handleChange} className={inputClassName} />
+                                                <label className={`text-xs font-medium uppercase ${isLight ? "text-slate-500" : "text-gray-400"}`}>Target Role</label>
+                                                <input required name="jobRole" type="text" placeholder="e.g. Senior Dev" value={userjobData.jobRole} onChange={handleChange} className={`w-full rounded-lg px-4 py-3 outline-none ${isLight ? "bg-white border border-slate-200 text-slate-900 focus:border-cyan-500" : "bg-[#111] border border-gray-700 text-white focus:border-cyan-500"}`} />
                                             </div>
                                             <div className="space-y-1">
-                                                <label className={`text-xs font-medium ${mutedTextClassName} uppercase`}>Skills</label>
-                                                <input name="jobSkill" type="text" placeholder="e.g. React, AWS" value={userjobData.jobSkill} onChange={handleChange} className={inputClassName} />
+                                                <label className={`text-xs font-medium uppercase ${isLight ? "text-slate-500" : "text-gray-400"}`}>Skills</label>
+                                                <input name="jobSkill" type="text" placeholder="e.g. React, AWS" value={userjobData.jobSkill} onChange={handleChange} className={`w-full rounded-lg px-4 py-3 outline-none ${isLight ? "bg-white border border-slate-200 text-slate-900 focus:border-cyan-500" : "bg-[#111] border border-gray-700 text-white focus:border-cyan-500"}`} />
                                             </div>
                                         </div>
                                     </div>
 
-                                    <button onClick={handleSubmit} disabled={!file || loading} className="w-full py-4 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-lg shadow-cyan-900/20 cursor-pointer">
+                                    <button onClick={handleSubmit} disabled={!file || loading} className={`w-full py-4 font-bold rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-lg cursor-pointer ${isLight ? "bg-slate-950 hover:bg-slate-800 text-white shadow-slate-300/60" : "bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-cyan-900/20"}`}>
                                         {loading ? <Loader2 className="animate-spin" /> : <>Identify Gaps <ArrowRight size={20} /></>}
                                     </button>
 
@@ -225,27 +209,38 @@ export default function SkillGap() {
                                 {/* Right Panel */}
                                 <div className="lg:col-span-3">
                                     {result ? (
-                                        <div className={`${cardClassName} rounded-3xl p-8 animate-in fade-in slide-in-from-bottom-4 duration-500`}>
-                                            <div className={`flex items-center gap-4 mb-6 pb-6 border-b ${subtleBorderClassName}`}>
+                                        <div className={`rounded-3xl p-8 shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-500 ${isLight ? "bg-white border border-slate-200" : "bg-[#0A0A0A] border border-cyan-500/20"}`}>
+                                            <div className={`flex items-center gap-4 mb-6 pb-6 ${isLight ? "border-b border-slate-200" : "border-b border-gray-800"}`}>
                                                 <div className="p-3 bg-cyan-500/10 rounded-xl text-cyan-400 border border-cyan-500/20">
                                                     <Target size={24} />
                                                 </div>
-                                                <h2 className={`text-2xl font-bold ${headingClassName}`}>Skill Gap Analysis</h2>
+                                                <h2 className={`text-2xl font-bold ${isLight ? "text-slate-950" : "text-white"}`}>Skill Gap Analysis</h2>
                                             </div>
 
-                                            <div className={markdownClassName}>
+                                            <div className="
+                                                prose max-w-none text-lg leading-loose
+                                                [&>h1]:text-cyan-400 [&>h1]:text-4xl [&>h1]:font-bold [&>h1]:mt-10 [&>h1]:mb-6
+                                                [&>h2]:text-slate-950 [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:mt-10 [&>h2]:mb-5 [&>h2]:border-l-4 [&>h2]:border-cyan-500 [&>h2]:pl-4
+                                                [&>h3]:text-cyan-700 [&>h3]:text-xl [&>h3]:font-semibold [&>h3]:mt-8 [&>h3]:mb-4
+                                                [&>p]:mb-6 [&>p]:leading-8
+                                                [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mb-8 [&>ul]:space-y-3
+                                                [&>ol]:list-decimal [&>ol]:pl-6 [&>ol]:mb-8 [&>ol]:space-y-3
+                                                [&>li]:pl-2 [&>li]:marker:text-cyan-500
+                                                [&>strong]:font-bold
+                                                [&>blockquote]:bg-slate-50 [&>blockquote]:border-l-4 [&>blockquote]:border-cyan-500 [&>blockquote]:p-6 [&>blockquote]:rounded-r-xl [&>blockquote]:my-8
+                                            ">
                                                 <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
                                                     {result}
                                                 </ReactMarkdown>
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className={`${cardClassName} border-dashed rounded-3xl flex flex-col items-center justify-center text-center p-8 min-h-[500px]`}>
+                                        <div className={`h-full border border-dashed rounded-3xl flex flex-col items-center justify-center text-center p-8 min-h-[500px] ${isLight ? "bg-white border-slate-200" : "bg-[#0A0A0A] border-gray-800"}`}>
                                             <div className="w-20 h-20 bg-cyan-500/10 rounded-full flex items-center justify-center mb-6">
                                                 <Zap className="w-10 h-10 text-cyan-500" />
                                             </div>
-                                            <h3 className={`text-xl font-semibold ${mutedTextClassName}`}>Analysis Waiting</h3>
-                                            <p className={`${helperTextClassName} mt-2 max-w-xs`}>Results will appear here...</p>
+                                            <h3 className={`text-xl font-semibold ${isLight ? "text-slate-700" : "text-gray-400"}`}>Analysis Waiting</h3>
+                                            <p className={`mt-2 max-w-xs ${isLight ? "text-slate-500" : "text-gray-600"}`}>Results will appear here...</p>
                                         </div>
                                     )}
                                 </div>

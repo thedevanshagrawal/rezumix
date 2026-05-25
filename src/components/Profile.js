@@ -20,6 +20,8 @@ import {
 import "react-toastify/dist/ReactToastify.css";
 import { apiClient } from "@/lib/api-client";
 import { PASSWORD_RULES, getPasswordStrength } from "@/lib/validation";
+import { useThemeMode } from "@/hooks/use-theme-mode";
+import ThemeToggle from "@/components/ThemeToggle";
 
 // Spotlight Card Component for consistent aesthetic
 function SpotlightCard({ children, className = "" }) {
@@ -36,7 +38,7 @@ function SpotlightCard({ children, className = "" }) {
 
     return (
         <div
-            className={`relative border border-border bg-card overflow-hidden group ${className}`}
+            className={`relative overflow-hidden group ${className}`}
             onMouseMove={handleMouseMove}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
@@ -55,11 +57,14 @@ function SpotlightCard({ children, className = "" }) {
 }
 
 // 2. Background Component
-const GridBackground = () => (
-    <div className="fixed inset-0 z-0 pointer-events-none bg-background transition-colors duration-300">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(15,23,42,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.06)_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:32px_32px]" />
-        <div className="absolute top-0 left-0 w-full h-[60vh] bg-primary/5 blur-[120px] rounded-full mix-blend-screen" />
-        <div className="absolute bottom-0 right-0 w-full h-[60vh] bg-secondary/20 blur-[120px] rounded-full mix-blend-screen" />
+const GridBackground = ({ isLight }) => (
+    <div className={`fixed inset-0 z-0 pointer-events-none ${isLight ? "bg-[#f8fafc]" : "bg-[#050505]"}`}>
+        <div className={`absolute inset-0 ${isLight
+            ? "bg-[linear-gradient(to_right,#e2e8f033_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f033_1px,transparent_1px)]"
+            : "bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)]"
+        } bg-[size:32px_32px]`} />
+        <div className={`absolute top-0 left-0 w-full h-[60vh] blur-[120px] rounded-full ${isLight ? "bg-blue-400/10" : "bg-blue-600/5"}`} />
+        <div className={`absolute bottom-0 right-0 w-full h-[60vh] blur-[120px] rounded-full ${isLight ? "bg-indigo-300/10" : "bg-indigo-600/5"}`} />
     </div>
 );
 
@@ -121,6 +126,7 @@ function PasswordStrengthMeter({ password }) {
 const Profile = () => {
     const { data: session, status } = useSession();
     const router = useRouter();
+    const { isLight } = useThemeMode();
     
     const [passwordChange, setPasswordChange] = useState({
         currentPassword: '',
@@ -240,63 +246,66 @@ const Profile = () => {
     if (status === "loading") return null;
 
     return (
-        <div className="relative min-h-screen bg-background text-foreground font-sans selection:bg-primary/30 overflow-x-hidden transition-colors duration-300">
+        <div className={`relative min-h-screen font-sans overflow-x-hidden ${isLight ? "bg-[#f8fafc] text-slate-900 selection:bg-blue-500/20" : "bg-[#050505] text-slate-200 selection:bg-blue-500/30"}`}>
             <ToastContainer />
-            <GridBackground />
+            <GridBackground isLight={isLight} />
 
             <div className="relative z-10 max-w-5xl mx-auto px-6 py-12">
+                <div className="flex justify-end mb-6">
+                    <ThemeToggle />
+                </div>
 
                 {/* Header */}
                 <div className={`text-center mb-12 transition-all duration-700 ease-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-medium mb-6">
+                    <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium mb-6 ${isLight ? "bg-blue-500/10 border border-blue-200 text-blue-700" : "bg-blue-500/10 border border-blue-500/20 text-blue-400"}`}>
                         <Shield className="w-3 h-3" />
                         <span>Account Management</span>
                     </div>
-                    <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-6 tracking-tight">
-                        Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-500">Profile</span>
+                    <h1 className={`text-3xl md:text-5xl font-bold mb-6 tracking-tight ${isLight ? "text-slate-950" : "text-white"}`}>
+                        Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">Profile</span>
                     </h1>
-                    <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+                    <p className={`text-lg max-w-2xl mx-auto leading-relaxed ${isLight ? "text-slate-600" : "text-slate-400"}`}>
                         Manage your personal details and security preferences in one place.
                       </p>
                 </div>
 
                 {/* Main Spotlight Card */}
                 <div className={`transition-all duration-700 delay-100 ease-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                    <SpotlightCard className="rounded-3xl p-8 md:p-12 shadow-2xl">
+                    <SpotlightCard className={`rounded-3xl p-8 md:p-12 shadow-2xl ${isLight ? "bg-white border border-slate-200" : "bg-[#0A0A0A] border border-white/10"}`}>
                         <div className="grid md:grid-cols-2 gap-12">
 
                             {/* 1. Profile Information Column */}
                             <div>
-                                <div className="flex items-center gap-3 mb-8 pb-4 border-b border-white/5">
+                                <div className={`flex items-center gap-3 mb-8 pb-4 ${isLight ? "border-b border-slate-200" : "border-b border-white/5"}`}>
                                     <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
                                         <User className="w-5 h-5" />
                                     </div>
-                                    <h2 className="text-xl font-bold text-white">Personal Details</h2>
+                                    <h2 className={`text-xl font-bold ${isLight ? "text-slate-950" : "text-white"}`}>Personal Details</h2>
                                 </div>
 
                                 <div className="space-y-6">
                                     <div className="space-y-2">
-                                        <label className="text-sm font-medium text-muted-foreground ml-1">Full Name</label>
+                                        <label className={`text-sm font-medium ml-1 ${isLight ? "text-slate-600" : "text-slate-300"}`}>Full Name</label>
                                         <div className="relative group">
-                                            <User className="absolute left-4 top-3.5 w-5 h-5 text-slate-500 group-focus-within:text-blue-400 transition-colors" />
+                                            <User className={`absolute left-4 top-3.5 w-5 h-5 transition-colors ${isLight ? "text-slate-400 group-focus-within:text-blue-500" : "text-slate-500 group-focus-within:text-blue-400"}`} />
                                             <input
                                                 type="text"
                                                 value={userDetails.fullName}
                                                 disabled
-                                                className="w-full bg-background border border-border rounded-xl py-3 pl-12 pr-4 text-muted-foreground cursor-not-allowed focus:outline-none"
+                                                className={`w-full rounded-xl py-3 pl-12 pr-4 cursor-not-allowed focus:outline-none ${isLight ? "bg-slate-50 border border-slate-200 text-slate-500" : "bg-[#111] border border-white/10 text-slate-400"}`}
                                             />
                                         </div>
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label className="text-sm font-medium text-muted-foreground ml-1">Email Address</label>
+                                        <label className={`text-sm font-medium ml-1 ${isLight ? "text-slate-600" : "text-slate-300"}`}>Email Address</label>
                                         <div className="relative group">
-                                            <Mail className="absolute left-4 top-3.5 w-5 h-5 text-slate-500 group-focus-within:text-blue-400 transition-colors" />
+                                            <Mail className={`absolute left-4 top-3.5 w-5 h-5 transition-colors ${isLight ? "text-slate-400 group-focus-within:text-blue-500" : "text-slate-500 group-focus-within:text-blue-400"}`} />
                                             <input
                                                 type="email"
                                                 value={userDetails.email}
                                                 disabled
-                                                className="w-full bg-background border border-border rounded-xl py-3 pl-12 pr-4 text-muted-foreground cursor-not-allowed focus:outline-none"
+                                                className={`w-full rounded-xl py-3 pl-12 pr-4 cursor-not-allowed focus:outline-none ${isLight ? "bg-slate-50 border border-slate-200 text-slate-500" : "bg-[#111] border border-white/10 text-slate-400"}`}
                                             />
                                         </div>
                                     </div>
@@ -305,31 +314,31 @@ const Profile = () => {
 
                             {/* 2. Security / Password Update Column */}
                             <div>
-                                <div className="flex items-center gap-3 mb-8 pb-4 border-b border-white/5">
+                                <div className={`flex items-center gap-3 mb-8 pb-4 ${isLight ? "border-b border-slate-200" : "border-b border-white/5"}`}>
                                     <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
                                         <Lock className="w-5 h-5" />
                                     </div>
-                                    <h2 className="text-xl font-bold text-white">Security Settings</h2>
+                                    <h2 className={`text-xl font-bold ${isLight ? "text-slate-950" : "text-white"}`}>Security Settings</h2>
                                 </div>
 
                                 <div className="space-y-6">
                                     {/* Current Password */}
                                     <div className="space-y-2">
-                                        <label className="text-sm font-medium text-muted-foreground ml-1">Current Password</label>
+                                        <label className={`text-sm font-medium ml-1 ${isLight ? "text-slate-600" : "text-slate-300"}`}>Current Password</label>
                                         <div className="relative group">
-                                            <Lock className="absolute left-4 top-3.5 w-5 h-5 text-slate-500 group-focus-within:text-indigo-400 transition-colors" />
+                                            <Lock className={`absolute left-4 top-3.5 w-5 h-5 transition-colors ${isLight ? "text-slate-400 group-focus-within:text-indigo-500" : "text-slate-500 group-focus-within:text-indigo-400"}`} />
                                             <input
                                                 type="password"
                                                 placeholder="••••••••"
                                                 value={passwordChange.currentPassword}
                                                 onBlur={() => handleBlur("currentPassword")}
                                                 onChange={(e) => setPasswordChange({ ...passwordChange, currentPassword: e.target.value })}
-                                                className={`w-full bg-[#111] border rounded-xl py-3 pl-12 pr-10 text-white focus:outline-none focus:ring-1 transition-all placeholder:text-slate-600 ${
+                                                className={`w-full rounded-xl py-3 pl-12 pr-10 focus:outline-none focus:ring-1 transition-all placeholder:text-slate-500 ${isLight ? "bg-white text-slate-900 border-slate-200" : "bg-[#111] text-white border-white/10"} ${
                                                     touched.currentPassword && !validation.currentPassword.valid
                                                         ? "border-red-500/50 focus:border-red-500/50 focus:ring-red-500/50"
                                                         : touched.currentPassword && validation.currentPassword.valid
                                                         ? "border-green-500/30 focus:border-green-500/50 focus:ring-green-500/50"
-                                                        : "border-border focus:border-primary/50 focus:ring-primary/50"
+                                                        : "border-white/10 focus:border-indigo-500/50 focus:ring-indigo-500/50"
                                                 }`}
                                             />
                                             {touched.currentPassword && (
@@ -352,21 +361,21 @@ const Profile = () => {
 
                                     {/* New Password */}
                                     <div className="space-y-2">
-                                        <label className="text-sm font-medium text-muted-foreground ml-1">New Password</label>
+                                        <label className={`text-sm font-medium ml-1 ${isLight ? "text-slate-600" : "text-slate-300"}`}>New Password</label>
                                         <div className="relative group">
-                                            <Lock className="absolute left-4 top-3.5 w-5 h-5 text-slate-500 group-focus-within:text-indigo-400 transition-colors" />
+                                            <Lock className={`absolute left-4 top-3.5 w-5 h-5 transition-colors ${isLight ? "text-slate-400 group-focus-within:text-indigo-500" : "text-slate-500 group-focus-within:text-indigo-400"}`} />
                                             <input
                                                 type="password"
                                                 placeholder="••••••••"
                                                 value={passwordChange.newPassword}
                                                 onBlur={() => handleBlur("newPassword")}
                                                 onChange={(e) => setPasswordChange({ ...passwordChange, newPassword: e.target.value })}
-                                                className={`w-full bg-[#111] border rounded-xl py-3 pl-12 pr-10 text-white focus:outline-none focus:ring-1 transition-all placeholder:text-slate-600 ${
+                                                className={`w-full rounded-xl py-3 pl-12 pr-10 focus:outline-none focus:ring-1 transition-all placeholder:text-slate-500 ${isLight ? "bg-white text-slate-900 border-slate-200" : "bg-[#111] text-white border-white/10"} ${
                                                     touched.newPassword && !validation.newPassword.valid
                                                         ? "border-red-500/50 focus:border-red-500/50 focus:ring-red-500/50"
                                                         : touched.newPassword && validation.newPassword.valid
                                                         ? "border-green-500/30 focus:border-green-500/50 focus:ring-green-500/50"
-                                                        : "border-border focus:border-primary/50 focus:ring-primary/50"
+                                                        : "border-white/10 focus:border-indigo-500/50 focus:ring-indigo-500/50"
                                                 }`}
                                             />
                                             {touched.newPassword && (
@@ -385,21 +394,21 @@ const Profile = () => {
 
                                     {/* Confirm New Password */}
                                     <div className="space-y-2">
-                                        <label className="text-sm font-medium text-muted-foreground ml-1">Confirm New Password</label>
+                                        <label className={`text-sm font-medium ml-1 ${isLight ? "text-slate-600" : "text-slate-300"}`}>Confirm New Password</label>
                                         <div className="relative group">
-                                            <Lock className="absolute left-4 top-3.5 w-5 h-5 text-slate-500 group-focus-within:text-indigo-400 transition-colors" />
+                                            <Lock className={`absolute left-4 top-3.5 w-5 h-5 transition-colors ${isLight ? "text-slate-400 group-focus-within:text-indigo-500" : "text-slate-500 group-focus-within:text-indigo-400"}`} />
                                             <input
                                                 type="password"
                                                 placeholder="••••••••"
                                                 value={passwordChange.confirmPassword}
                                                 onBlur={() => handleBlur("confirmPassword")}
                                                 onChange={(e) => setPasswordChange({ ...passwordChange, confirmPassword: e.target.value })}
-                                                className={`w-full bg-[#111] border rounded-xl py-3 pl-12 pr-10 text-white focus:outline-none focus:ring-1 transition-all placeholder:text-slate-600 ${
+                                                className={`w-full rounded-xl py-3 pl-12 pr-10 focus:outline-none focus:ring-1 transition-all placeholder:text-slate-500 ${isLight ? "bg-white text-slate-900 border-slate-200" : "bg-[#111] text-white border-white/10"} ${
                                                     touched.confirmPassword && !validation.confirmPassword.valid
                                                         ? "border-red-500/50 focus:border-red-500/50 focus:ring-red-500/50"
                                                         : touched.confirmPassword && validation.confirmPassword.valid
                                                         ? "border-green-500/30 focus:border-green-500/50 focus:ring-green-500/50"
-                                                        : "border-border focus:border-primary/50 focus:ring-primary/50"
+                                                        : "border-white/10 focus:border-indigo-500/50 focus:ring-indigo-500/50"
                                                 }`}
                                             />
                                             {touched.confirmPassword && (
@@ -425,13 +434,14 @@ const Profile = () => {
                                         <button
                                             onClick={handleChangePassword}
                                             disabled={loading || !validation.isFormValid}
-                                            className={`
-                                                w-full py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-2
-                                                ${loading || !validation.isFormValid
-                                                    ? 'bg-white/5 text-slate-500 cursor-not-allowed border border-white/5 opacity-40'
-                                                    : 'bg-white text-black hover:bg-slate-200 shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)]'
-                                                }
-                                            `}
+                                                className={`w-full py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${loading || !validation.isFormValid
+                                                    ? isLight
+                                                        ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200 opacity-60'
+                                                        : 'bg-white/5 text-slate-500 cursor-not-allowed border border-white/5 opacity-40'
+                                                    : isLight
+                                                        ? 'bg-slate-950 text-white hover:bg-slate-800 shadow-[0_0_20px_-5px_rgba(15,23,42,0.25)]'
+                                                        : 'bg-white text-black hover:bg-slate-200 shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)]'
+                                                }`}
                                         >
                                             {loading ? (
                                                 <>

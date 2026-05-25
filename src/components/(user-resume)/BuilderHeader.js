@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { exportToPDF, exportToJSON, exportToTXT, exportToDOCX } from "@/lib/exportPDF";
 import { createPortal } from "react-dom";
+import { useThemeMode } from "@/hooks/use-theme-mode";
 
 const TEMPLATES = [
   { id: "modern", label: "Modern" },
@@ -27,6 +28,7 @@ export default function BuilderHeader({
   const [exporting, setExporting] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   const exportRef = useRef(null);
+  const { isLight } = useThemeMode();
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -68,25 +70,25 @@ export default function BuilderHeader({
       zIndex: 99999,
       width: "200px",
       backgroundColor: "#0f0f14",
-      border: "1px solid rgba(255,255,255,0.1)",
+      border: isLight ? "1px solid rgba(148,163,184,0.35)" : "1px solid rgba(255,255,255,0.1)",
       borderRadius: "12px",
-      boxShadow: "0 25px 50px rgba(0,0,0,0.8)",
+      boxShadow: isLight ? "0 25px 50px rgba(15,23,42,0.12)" : "0 25px 50px rgba(0,0,0,0.8)",
     };
   };
 
   return (
-    <header className="h-16 bg-card border-b border-border flex items-center justify-between px-4 md:px-6 sticky top-0 z-50">
+    <header className={`h-16 flex items-center justify-between px-4 md:px-6 sticky top-0 z-50 ${isLight ? "bg-white border-b border-slate-200" : "bg-gray-950 border-b border-white/10"}`}>
 
       {/* Center: Template Switcher (desktop) */}
-      <div className="hidden md:flex items-center gap-1 bg-muted/50 rounded-lg p-1 border border-border">
+      <div className={`hidden md:flex items-center gap-1 rounded-lg p-1 ${isLight ? "bg-slate-100" : "bg-white/5"}`}>
         {TEMPLATES.map((t) => (
           <button
             key={t.id}
             onClick={() => setActiveTemplate(t.id)}
             className={`px-3 py-1.5 text-sm rounded-md transition-all duration-200 active:scale-95 cursor-pointer ${
               activeTemplate === t.id
-                ? "bg-primary text-primary-foreground font-medium shadow"
-                : "text-muted-foreground hover:text-foreground"
+                ? "bg-blue-600 text-white font-medium shadow"
+                : isLight ? "text-slate-500 hover:text-slate-900" : "text-white/50 hover:text-white"
             }`}
           >
             {t.label}
@@ -98,11 +100,11 @@ export default function BuilderHeader({
       <div className="flex items-center gap-2">
 
         {/* Mobile view toggle */}
-        <div className="flex md:hidden items-center bg-muted/50 rounded-lg p-1 border border-border">
+        <div className={`flex md:hidden items-center rounded-lg p-1 ${isLight ? "bg-slate-100" : "bg-white/5"}`}>
           <button
             onClick={() => setMobileView("form")}
             className={`px-3 py-1 text-sm rounded-md transition-all active:scale-95 ${
-              mobileView === "form" ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+              mobileView === "form" ? "bg-blue-600 text-white" : isLight ? "text-slate-500" : "text-white/50"
             }`}
           >
             Form
@@ -110,7 +112,7 @@ export default function BuilderHeader({
           <button
             onClick={() => setMobileView("preview")}
             className={`px-3 py-1 text-sm rounded-md transition-all active:scale-95 ${
-              mobileView === "preview" ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+              mobileView === "preview" ? "bg-blue-600 text-white" : isLight ? "text-slate-500" : "text-white/50"
             }`}
           >
             Preview
@@ -119,14 +121,14 @@ export default function BuilderHeader({
 
         {/* Save Message */}
         {saveMsg && (
-          <span className="text-xs text-muted-foreground">{saveMsg}</span>
+          <span className={`text-xs ${isLight ? "text-slate-500" : "text-white/60"}`}>{saveMsg}</span>
         )}
 
         {/* AI Suggestions Button */}
         <button
           onClick={onGetSuggestions}
           disabled={suggesting}
-          className="flex items-center gap-2 bg-muted/50 hover:bg-muted border border-border text-foreground text-sm font-medium px-4 py-2 rounded-xl transition-all duration-200 active:scale-95 disabled:opacity-60"
+          className={`flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-xl transition-all duration-200 active:scale-95 disabled:opacity-60 ${isLight ? "bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-900" : "bg-white/5 hover:bg-white/10 border border-white/10 text-white"}`}
         >
           {suggesting ? "Analyzing..." : "✨ AI Suggestions"}
         </button>
@@ -135,7 +137,7 @@ export default function BuilderHeader({
         <button
           onClick={onSave}
           disabled={saving}
-          className="flex items-center gap-2 bg-muted/50 hover:bg-muted border border-border text-foreground text-sm font-medium px-4 py-2 rounded-xl transition-all duration-200 active:scale-95 disabled:opacity-60"
+          className={`flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-xl transition-all duration-200 active:scale-95 disabled:opacity-60 ${isLight ? "bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-900" : "bg-white/5 hover:bg-white/10 border border-white/10 text-white"}`}
         >
           {saving ? "Saving..." : "Save Resume"}
         </button>
@@ -145,7 +147,7 @@ export default function BuilderHeader({
           <button
             onClick={() => setExportOpen(!exportOpen)}
             disabled={exporting}
-            className="flex items-center gap-2 bg-foreground text-background hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed font-medium text-sm px-4 py-2 rounded-xl transition-all duration-200 active:scale-95"
+            className={`flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed font-medium text-sm px-4 py-2 rounded-xl transition-all duration-200 active:scale-95 ${isLight ? "bg-slate-950 text-white hover:bg-slate-800" : "bg-white text-black hover:bg-slate-200"}`}
           >
             {exporting ? (
               <>
@@ -170,7 +172,7 @@ export default function BuilderHeader({
 
           {/* Portal Dropdown */}
           {exportOpen && typeof window !== "undefined" && createPortal(
-            <div style={getDropdownPosition()}>
+            <div style={{ ...getDropdownPosition(), ...(isLight ? { backgroundColor: "#ffffff", color: "#0f172a" } : {}) }}>
               {[
                 { label: "Export as PDF", format: "pdf",  },
                 { label: "Export as DOCX", format: "docx", },
@@ -189,13 +191,13 @@ export default function BuilderHeader({
                     gap: "12px",
                     padding: "10px 16px",
                     fontSize: "13px",
-                    color: "rgba(255,255,255,0.9)",
+                    color: isLight ? "#0f172a" : "rgba(255,255,255,0.8)",
                     background: "none",
                     border: "none",
                     cursor: "pointer",
                     textAlign: "left",
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.08)"}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = isLight ? "rgba(148,163,184,0.15)" : "rgba(255,255,255,0.1)"}
                   onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
                 >
                   <span>{item.icon}</span>

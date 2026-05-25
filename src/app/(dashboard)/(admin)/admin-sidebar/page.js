@@ -6,6 +6,7 @@ import { signOut, useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import Image from 'next/image'
+import { useThemeMode } from '@/hooks/use-theme-mode'
 
 const SIDEBAR_LINKS = [
     { label: "Dashboard", href: "/admindashboard", icon: LayoutDashboard },
@@ -30,6 +31,7 @@ export default function AdminSidebar() {
     const pathname = usePathname()
     const [mobileOpen, setMobileOpen] = useState(false)
     const [collapsed, setCollapsed] = useState(true)
+    const { isLight } = useThemeMode()
 
     // Auth Protection
     useEffect(() => {
@@ -62,9 +64,9 @@ export default function AdminSidebar() {
     return (
         <>
             {/* --- Mobile Header --- */}
-            <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-[#050505]/90 backdrop-blur-md border-b border-white/10 z-50 flex items-center justify-between px-4">
+            <div className={`md:hidden fixed top-0 left-0 right-0 h-16 backdrop-blur-md z-50 flex items-center justify-between px-4 border-b ${isLight ? 'bg-white/90 border-slate-200' : 'bg-[#050505]/90 border-white/10'}`}>
                 <div className="flex items-center gap-3">
-                    <button onClick={toggleMobileMenu} className="p-2 -ml-2 text-slate-400 hover:text-white">
+                    <button onClick={toggleMobileMenu} className={`p-2 -ml-2 ${isLight ? 'text-slate-600 hover:text-slate-950' : 'text-slate-400 hover:text-white'}`}>
                         <Menu size={24} />
                     </button>
                     {/* Mobile Logo */}
@@ -85,7 +87,7 @@ export default function AdminSidebar() {
 
             {/* --- Mobile Overlay --- */}
             {mobileOpen && (
-                <div onClick={closeMobileMenu} className="md:hidden fixed inset-0 bg-black/80 z-40 backdrop-blur-sm" />
+                <div onClick={closeMobileMenu} className={`md:hidden fixed inset-0 z-40 backdrop-blur-sm ${isLight ? 'bg-slate-900/20' : 'bg-black/80'}`} />
             )}
 
             {/* --- Sidebar --- */}
@@ -93,8 +95,8 @@ export default function AdminSidebar() {
                 onMouseEnter={() => setCollapsed(false)}
                 onMouseLeave={() => setCollapsed(true)}
                 className={`
-                    fixed top-0 left-0 h-full bg-[#050505] border-r border-white/10 z-50 
-                    text-slate-300 transition-all duration-300 ease-in-out
+                    fixed top-0 left-0 h-full z-50 text-slate-300 transition-all duration-300 ease-in-out border-r
+                    ${isLight ? 'bg-white border-slate-200 text-slate-700' : 'bg-[#050505] border-white/10'}
                     
                     /* Mobile State */
                     ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}
@@ -108,7 +110,7 @@ export default function AdminSidebar() {
                 `}
             >
                 {/* Logo Area - PERFECTLY HANDLED */}
-                <div className="h-20 flex items-center justify-center md:justify-start px-0 md:px-6 border-b border-white/5 relative overflow-hidden">
+                <div className={`h-20 flex items-center justify-center md:justify-start px-0 md:px-6 relative overflow-hidden border-b ${isLight ? 'border-slate-200' : 'border-white/5'}`}>
 
                     {/* 1. Collapsed State: Show Icon (Hidden on Hover/Mobile) */}
                     <div className={`absolute transition-all duration-300 flex items-center justify-center ${collapsed ? 'opacity-100 scale-100 delay-100' : 'opacity-0 scale-0'}`}>
@@ -143,10 +145,10 @@ export default function AdminSidebar() {
                                 onClick={closeMobileMenu}
                                 className={`
                                     relative flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-300 group
-                                    ${active ? 'bg-blue-600/10 text-blue-400 border border-blue-600/20' : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'}
+                                    ${active ? 'bg-blue-600/10 text-blue-400 border border-blue-600/20' : (isLight ? 'text-slate-600 hover:text-slate-950 hover:bg-slate-100 border border-transparent' : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent')}
                                 `}
                             >
-                                <div className={`shrink-0 transition-colors ${active ? 'text-blue-400' : 'text-slate-500 group-hover:text-white'}`}>
+                                <div className={`shrink-0 transition-colors ${active ? 'text-blue-400' : (isLight ? 'text-slate-400 group-hover:text-slate-950' : 'text-slate-500 group-hover:text-white')}`}>
                                     <Icon size={20} />
                                 </div>
 
@@ -164,10 +166,10 @@ export default function AdminSidebar() {
                 </div>
 
                 {/* Footer */}
-                <div className="p-4 border-t border-white/5 bg-[#0A0A0A]">
+                <div className={`p-4 border-t ${isLight ? 'border-slate-200 bg-white' : 'border-white/5 bg-[#0A0A0A]'}`}>
                     <button
                         onClick={async () => { closeMobileMenu(); await signOut({ callbackUrl: "/" }); }}
-                        className={`w-full flex items-center gap-3 px-3 py-2.5 text-red-400 hover:bg-red-500/10 rounded-xl transition-all duration-300 cursor-pointer ${collapsed ? 'md:justify-center' : ''}`}
+                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 cursor-pointer ${isLight ? 'text-red-600 hover:bg-red-50' : 'text-red-400 hover:bg-red-500/10'} ${collapsed ? 'md:justify-center' : ''}`}
                     >
                         <LogOut size={20} className="shrink-0" />
                         <span className={`font-medium whitespace-nowrap transition-all duration-300 overflow-hidden ${collapsed ? 'md:w-0 md:opacity-0' : 'w-auto opacity-100'}`}>

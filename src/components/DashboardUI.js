@@ -2,9 +2,11 @@
 import React, { useEffect, useState } from 'react'
 import { FileText, Briefcase, User, Video, BrainCircuit } from 'lucide-react'
 import Link from 'next/link'
+import { useThemeMode } from '@/hooks/use-theme-mode'
 
 const DashboardUI = () => {
     const [activeFeature, setActiveFeature] = useState(0);
+    const { isLight } = useThemeMode();
 
     // Auto-rotate features
     useEffect(() => {
@@ -71,20 +73,20 @@ const DashboardUI = () => {
         <div className="w-full">
             {/* Header Section */}
             <div className="mb-10 text-center md:text-left">
-                <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
+                <h2 className={`text-2xl md:text-3xl font-bold mb-3 ${isLight ? "text-slate-950" : "text-white"}`}>
                     Your Career Intelligence Hub
                 </h2>
-                <p className="text-muted-foreground max-w-2xl">
+                <p className={`max-w-2xl ${isLight ? "text-slate-600" : "text-slate-400"}`}>
                     Select a tool below to optimize your professional profile.
                 </p>
 
                 {/* Quick Stats Strip */}
                 <div className="flex flex-wrap gap-4 mt-6 justify-center md:justify-start">
-                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50 border border-border text-xs text-muted-foreground">
+                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs ${isLight ? "bg-white border-slate-200 text-slate-600" : "bg-white/5 border-white/5 text-slate-300"}`}>
                         <div className="w-1.5 h-1.5 rounded-full bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.5)]" />
                         AI System Online
                     </div>
-                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50 border border-border text-xs text-muted-foreground">
+                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs ${isLight ? "bg-white border-slate-200 text-slate-600" : "bg-white/5 border-white/5 text-slate-300"}`}>
                         <div className="w-1.5 h-1.5 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.5)]" />
                         All Tools Unlocked
                     </div>
@@ -98,8 +100,9 @@ const DashboardUI = () => {
                         key={index}
                         href={feature.href}
                         onMouseEnter={() => setActiveFeature(index)}
-                        className={`relative group p-6 rounded-2xl border bg-card transition-all duration-300 hover:scale-[1.02] cursor-pointer
-                            ${activeFeature === index ? feature.borderColor : 'border-border'}
+                        className={`relative group p-6 rounded-2xl border transition-all duration-300 hover:scale-[1.02] cursor-pointer
+                            ${isLight ? "bg-white border-slate-200 shadow-sm" : "bg-[#0A0A0A] border-white/5"}
+                            ${activeFeature === index ? feature.borderColor : isLight ? 'border-slate-200' : 'border-white/5'}
                         `}
                     >
                         {/* Background Gradient */}
@@ -107,21 +110,21 @@ const DashboardUI = () => {
 
                         <div className="relative z-10 flex flex-col h-full">
                             <div className="flex justify-between items-start mb-4">
-                                <div className="p-3 rounded-xl bg-muted/50 border border-border group-hover:bg-muted transition-colors">
+                                <div className={`p-3 rounded-xl border transition-colors ${isLight ? "bg-slate-100 border-slate-200 group-hover:bg-slate-200" : "bg-white/5 border-white/5 group-hover:bg-white/10"}`}>
                                     {feature.icon}
                                 </div>
-                                <span className={`text-xs font-medium px-2 py-1 rounded-full bg-muted/50 border border-border ${feature.color}`}>
+                                <span className={`text-xs font-medium px-2 py-1 rounded-full border ${isLight ? "bg-slate-100 border-slate-200" : "bg-white/5 border-white/5"} ${feature.color}`}>
                                     {feature.stats}
                                 </span>
                             </div>
 
-                            <h3 className="text-lg font-bold text-foreground mb-2">{feature.title}</h3>
-                            <p className="text-sm text-muted-foreground mb-6 flex-grow leading-relaxed">
+                            <h3 className={`text-lg font-bold mb-2 ${isLight ? "text-slate-950" : "text-white"}`}>{feature.title}</h3>
+                            <p className={`text-sm mb-6 flex-grow leading-relaxed ${isLight ? "text-slate-600" : "text-slate-400"}`}>
                                 {feature.description}
                             </p>
 
                             {/* Active Indicator Line */}
-                            <div className="h-1 w-full bg-muted rounded-full overflow-hidden">
+                            <div className={`h-1 w-full rounded-full overflow-hidden ${isLight ? "bg-slate-100" : "bg-white/5"}`}>
                                 <div
                                     className={`h-full ${feature.color.replace('text-', 'bg-')} transition-all duration-500 ease-out`}
                                     style={{ width: activeFeature === index ? '100%' : '0%' }}
