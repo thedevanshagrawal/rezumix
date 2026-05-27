@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { UploadCloud, FileText, CheckCircle2, AlertCircle, Loader2, ArrowRight, X } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 export default function ResumeUploader() {
     const [file, setFile] = useState(null);
@@ -24,10 +25,13 @@ export default function ResumeUploader() {
             setFile(selectedFile);
             setFileName(selectedFile.name);
             setError('');
+            toast.success(`File selected: ${selectedFile.name}`);
         } else {
             setFile(null);
             setFileName('');
-            setError('Please upload a .docx file (Microsoft Word).');
+            const errorMsg = 'Please upload a .docx file (Microsoft Word).';
+            setError(errorMsg);
+            toast.error(errorMsg);
         }
     };
 
@@ -40,10 +44,16 @@ export default function ResumeUploader() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!file) return setError('Please select a file.');
+        if (!file) {
+            const msg = 'Please select a file.';
+            setError(msg);
+            toast.error(msg);
+            return;
+        }
 
         setLoading(true);
         setError('');
+        toast.loading('Analyzing your resume...');
 
         try {
             const formData = new FormData();
@@ -56,9 +66,13 @@ export default function ResumeUploader() {
 
             const data = await response.json();
             if (!response.ok) throw new Error(data.error || 'Analysis failed');
+            
+            toast.success('Resume analysis complete! Check the results below.');
             setResult(data);
         } catch (err) {
-            setError(err.message || 'Failed to analyze resume');
+            const errorMsg = err.message || 'Failed to analyze resume';
+            setError(errorMsg);
+            toast.error(errorMsg);
         } finally {
             setLoading(false);
         }

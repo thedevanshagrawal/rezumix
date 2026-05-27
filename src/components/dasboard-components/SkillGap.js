@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { UploadCloud, FileText, CheckCircle, AlertCircle, Target, Zap, ArrowRight, Loader2, X } from "lucide-react";
+import { FetchErrorBanner } from "@/components/ui/fetch-error-banner";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
@@ -52,7 +53,7 @@ export default function SkillGap() {
     };
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
+        e?.preventDefault();
         setLoading(true);
         setResult("");
         setError("");
@@ -203,7 +204,12 @@ export default function SkillGap() {
                                         {loading ? <Loader2 className="animate-spin" /> : <>Identify Gaps <ArrowRight size={20} /></>}
                                     </button>
 
-                                    {error && <p className="text-red-400 text-sm text-center">{error}</p>}
+                                    {error && (
+                                        <FetchErrorBanner
+                                            message={error}
+                                            onRetry={handleSubmit}
+                                        />
+                                    )}
                                 </div>
 
                                 {/* Right Panel */}

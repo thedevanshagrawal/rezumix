@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
+import { toast } from "sonner";
 
 import { apiClient } from "@/lib/api-client";
 
@@ -195,6 +196,7 @@ export default function VerifyOTP() {
         });
 
         if (loginResponse?.ok) {
+          toast.success("Email verified successfully! Logging you in...");
           setSuccess("Verification successful! Redirecting...");
 
           if (email) {

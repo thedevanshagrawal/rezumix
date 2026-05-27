@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -20,6 +20,8 @@ import { apiClient } from "@/lib/api-client";
 import { motion, useMotionTemplate, useMotionValue } from "framer-motion";
 import { useThemeMode } from "@/hooks/use-theme-mode";
 import ThemeToggle from "@/components/ThemeToggle";
+import { InterviewCardSkeleton } from "@/components/ui/interview-card-skeleton";
+import { FetchErrorBanner } from "@/components/ui/fetch-error-banner";
 
 // 1. Grid Background
 const GridBackground = ({ isLight }) => (
@@ -73,6 +75,7 @@ const MyInterview = () => {
 
     const [interviewDetails, setInterviewDetails] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [fetchError, setFetchError] = useState("");
     const [searchQuery, setSearchQuery] = useState("");
 
     const filteredInterviews = useMemo(() => {
@@ -89,36 +92,54 @@ const MyInterview = () => {
         }
     }, [status, router]);
 
-    useEffect(() => {
-        const fetchInterview = async () => {
-            try {
-                const userEmail = session?.user?.email;
-                if (!userEmail) return;
-                setIsLoading(true);
-                const response = await apiClient.getMockInterviewDetails(userEmail);
-                if (response.data?.data) {
-                    setInterviewDetails(response.data.data);
-                } else if (response.data && Array.isArray(response.data)) {
-                    setInterviewDetails(response.data);
-                } else {
-                    setInterviewDetails([]);
-                }
-            } catch (error) {
-                console.error("Failed to fetch interviews:", error);
-            } finally {
-                setIsLoading(false);
+    const fetchInterview = useCallback(async () => {
+        const userEmail = session?.user?.email;
+        if (!userEmail) {
+            setIsLoading(false);
+            return;
+        }
+        setIsLoading(true);
+        setFetchError("");
+        try {
+            const response = await apiClient.getMockInterviewDetails(userEmail);
+            if (response.data?.data) {
+                setInterviewDetails(response.data.data);
+            } else if (response.data && Array.isArray(response.data)) {
+                setInterviewDetails(response.data);
+            } else {
+                setInterviewDetails([]);
             }
-        };
+        } catch (error) {
+            console.error("Failed to fetch interviews:", error);
+            setFetchError(error.message || "Failed to load interviews. Please try again.");
+        } finally {
+            setIsLoading(false);
+        }
+    }, [session]);
 
+    useEffect(() => {
         if (status === "authenticated" && session?.user?.email) {
             fetchInterview();
         }
-    }, [session, status]);
+    }, [status, session, fetchInterview]);
 
     if (status === "loading" || isLoading) {
         return (
             <div className={`min-h-screen flex items-center justify-center ${isLight ? "bg-[#f8fafc]" : "bg-[#050505]"}`}>
                 <div className="text-slate-500">Loading interviews...</div>
+            <div className="relative min-h-screen bg-[#050505] text-slate-200 font-sans overflow-x-hidden">
+                <GridBackground />
+                <div className="relative z-10 max-w-7xl mx-auto px-6 py-12">
+                    <div className="mb-12">
+                        <div className="h-10 w-64 bg-white/5 animate-pulse rounded-xl mb-6" />
+                        <div className="h-12 w-full max-w-xl bg-white/5 animate-pulse rounded-xl" />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <InterviewCardSkeleton />
+                        <InterviewCardSkeleton />
+                        <InterviewCardSkeleton />
+                    </div>
+                </div>
             </div>
         );
     }
@@ -151,19 +172,33 @@ const MyInterview = () => {
                     </div>
                 </div>
 
+                {/* Error State */}
+                {fetchError && (
+                    <FetchErrorBanner
+                        message={fetchError}
+                        onRetry={fetchInterview}
+                        className="mb-8 max-w-md mx-auto"
+                    />
+                )}
+
                 {/* Content Grid */}
                 {filteredInterviews.length === 0 ? (
                     <div className={`flex flex-col items-center justify-center py-20 rounded-3xl ${isLight ? "border border-dashed border-slate-200 bg-white" : "border border-dashed border-white/10 bg-white/[0.02]"}`}>
                         <BookOpen className={`w-16 h-16 mb-4 ${isLight ? "text-slate-400" : "text-slate-700"}`} />
                         <h3 className={`text-xl font-bold mb-2 ${isLight ? "text-slate-950" : "text-white"}`}>No Interviews Found</h3>
                         <p className={`${isLight ? "text-slate-500" : "text-slate-400"} mb-6`}>Create a new session to get started.</p>
+                {!fetchError && filteredInterviews.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-20 border border-dashed border-white/10 rounded-3xl bg-white/[0.02]">
+                        <BookOpen className="w-16 h-16 text-slate-700 mb-4" />
+                        <h3 className="text-xl font-bold text-white mb-2">No Interviews Found</h3>
+                        <p className="text-slate-500 mb-6">Create a new session to get started.</p>
                         <Link href="/mock-interview">
                             <Button className={`rounded-xl px-6 cursor-pointer ${isLight ? "bg-slate-950 text-white hover:bg-slate-800" : "bg-white text-black hover:bg-slate-200"}`}>
                                 Create New
                             </Button>
                         </Link>
                     </div>
-                ) : (
+                ) : !fetchError && (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {filteredInterviews.map((details, index) => (
                             <SpotlightCard key={details._id || index} isLight={isLight} className="rounded-2xl p-6 flex flex-col h-full hover:-translate-y-1 transition-transform duration-300">

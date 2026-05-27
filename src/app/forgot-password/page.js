@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import {
     Mail,
     ArrowLeft,
@@ -14,8 +15,6 @@ import {
     Eye,
     EyeOff
 } from "lucide-react";
-
-import toast from "react-hot-toast";
 
 export default function ForgotPasswordPage() {
 

@@ -4,7 +4,7 @@ import SessionWrapper from "@/components/SessionWrapper";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
-import { Toaster } from "react-hot-toast";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -154,9 +154,8 @@ export default function RootLayout({ children }) {
 
           <Toaster
             position="top-right"
-            toastOptions={{
-              duration: 3000,
-            }}
+            richColors
+            closeButton
           />
 
           <Navbar />

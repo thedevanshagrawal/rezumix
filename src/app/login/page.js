@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
 import { motion, useMotionTemplate, useMotionValue } from "framer-motion";
+import { toast } from "sonner";
 import {
   Mail,
   Lock,
@@ -154,6 +155,7 @@ export default function LoginPage() {
               expiry.toString()
             );
 
+            toast.info("Account not verified. A new OTP has been sent. Redirecting...");
             setError(
               "Account not verified. A new OTP has been sent. Redirecting to verification..."
             );
@@ -176,6 +178,7 @@ export default function LoginPage() {
               expiry.toString()
             );
 
+            toast.warning(`OTP already sent. Try again in ${remaining}s. Redirecting...`);
             setError(
               `Account not verified. An OTP was already sent recently (${remaining}s remaining). Redirecting...`
             );
@@ -186,6 +189,7 @@ export default function LoginPage() {
               );
             }, 2500);
           } else {
+            toast.error("Failed to send OTP. Please try again.");
             setError(
               "Account not verified. Failed to send OTP. Please try again."
             );
@@ -197,11 +201,13 @@ export default function LoginPage() {
         return;
       }
 
+      toast.error("Invalid credentials. Please check your email and password.");
       setError("Invalid credentials. Please try again.");
       setLoading(false);
       return;
     }
 
+    toast.success("Login successful! Redirecting to dashboard...");
     // FIXED REDIRECT
     router.push("/dashboard");
 
