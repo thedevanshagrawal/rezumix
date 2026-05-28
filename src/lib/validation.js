@@ -46,6 +46,7 @@ export const PASSWORD_RULES = [
     { key: "lowercase", label: "One lowercase letter (a-z)", test: (pw) => /[a-z]/.test(pw), message: "Password must contain at least one lowercase letter (a-z)" },
     { key: "number", label: "One number (0-9)", test: (pw) => /[0-9]/.test(pw), message: "Password must contain at least one number (0-9)" },
     { key: "special", label: "One special character (!@#$%^&*)", test: (pw) => /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(pw), message: "Password must contain at least one special character" },
+    { key: "notCommon", label: "Not easily guessable", test: (pw) => !/^(12345678|password|qwertyuiop|admin123)$/i.test(pw), message: "Password is too common and easily guessable" },
 ];
 
 export function getPasswordStrength(pw) {
