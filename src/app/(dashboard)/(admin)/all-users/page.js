@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence, useMotionTemplate, useMotionValue } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
     AlertTriangle, 
     User, 
@@ -15,48 +15,8 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { apiClient } from '@/lib/api-client';
-
-// 1. Grid Background (Emerald/Teal Theme)
-const GridBackground = () => (
-  <div className="fixed inset-0 z-0 pointer-events-none bg-[#050505]">
-    <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:32px_32px]" />
-    <div className="absolute top-0 left-0 w-full h-[60vh] bg-emerald-600/5 blur-[120px] rounded-full mix-blend-screen" />
-    <div className="absolute bottom-0 right-0 w-full h-[60vh] bg-teal-600/5 blur-[120px] rounded-full mix-blend-screen" />
-  </div>
-);
-
-// 2. Spotlight Card Component
-function SpotlightCard({ children, className = "" }) {
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-
-  function handleMouseMove({ currentTarget, clientX, clientY }) {
-    const { left, top } = currentTarget.getBoundingClientRect();
-    mouseX.set(clientX - left);
-    mouseY.set(clientY - top);
-  }
-
-  return (
-    <div
-      className={`relative border border-white/10 bg-[#0A0A0A] overflow-hidden group ${className}`}
-      onMouseMove={handleMouseMove}
-    >
-      <motion.div
-        className="pointer-events-none absolute -inset-px rounded-xl opacity-0 transition duration-300 group-hover:opacity-100"
-        style={{
-          background: useMotionTemplate`
-            radial-gradient(
-              650px circle at ${mouseX}px ${mouseY}px,
-              rgba(16, 185, 129, 0.15),
-              transparent 80%
-            )
-          `,
-        }}
-      />
-      <div className="relative h-full z-10">{children}</div>
-    </div>
-  );
-}
+import SpotlightCard from "@/components/ui/SpotlightCard";
+import GridBackground from "@/components/ui/GridBackground";
 
 const AllUser = () => {
     const [users, setUsers] = useState([]);
@@ -110,7 +70,7 @@ const AllUser = () => {
 
     return (
         <div className="relative min-h-screen bg-[#050505] text-slate-200 font-sans selection:bg-emerald-500/30 overflow-x-hidden">
-            <GridBackground />
+            <GridBackground topColor="bg-emerald-600/5" bottomColor="bg-teal-600/5" />
 
             <div className="relative z-10 max-w-6xl mx-auto px-6 py-12">
                 
@@ -148,6 +108,7 @@ const AllUser = () => {
                             {users.map((user, index) => (
                                 <SpotlightCard 
                                     key={user._id || index}
+                                    glowColor="rgba(16, 185, 129, 0.15)"
                                     className="rounded-2xl p-6 flex flex-col hover:-translate-y-1 transition-transform duration-300"
                                 >
                                     {/* User Info Header */}

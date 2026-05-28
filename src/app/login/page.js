@@ -17,51 +17,8 @@ import {
 
 import { EMAIL_REGEX } from "@/lib/validation";
 import { apiClient } from "@/lib/api-client";
-
-// --- Components ---
-
-function SpotlightCard({ children, className = "" }) {
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-
-  function handleMouseMove({ currentTarget, clientX, clientY }) {
-    const { left, top } = currentTarget.getBoundingClientRect();
-    mouseX.set(clientX - left);
-    mouseY.set(clientY - top);
-  }
-
-  return (
-    <div
-      className={`relative border border-white/10 bg-neutral-900/50 overflow-hidden group ${className}`}
-      onMouseMove={handleMouseMove}
-    >
-      <motion.div
-        className="pointer-events-none absolute -inset-px rounded-xl opacity-0 transition duration-300 group-hover:opacity-100"
-        style={{
-          background: useMotionTemplate`
-            radial-gradient(
-              650px circle at ${mouseX}px ${mouseY}px,
-              rgba(59, 130, 246, 0.1),
-              transparent 80%
-            )
-          `,
-        }}
-      />
-
-      <div className="relative h-full z-10">{children}</div>
-    </div>
-  );
-}
-
-const GridBackground = () => (
-  <div className="fixed inset-0 z-0 pointer-events-none bg-[#050505]">
-    <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:32px_32px]" />
-
-    <div className="absolute top-0 left-0 w-full h-[60vh] bg-blue-600/5 blur-[120px] rounded-full mix-blend-screen" />
-
-    <div className="absolute bottom-0 right-0 w-full h-[60vh] bg-purple-600/5 blur-[120px] rounded-full mix-blend-screen" />
-  </div>
-);
+import SpotlightCard from "@/components/ui/SpotlightCard";
+import GridBackground from "@/components/ui/GridBackground";
 
 // --- Main Page ---
 
