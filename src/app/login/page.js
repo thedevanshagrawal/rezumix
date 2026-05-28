@@ -71,6 +71,8 @@ const GridBackground = () => (
     <div className="absolute bottom-0 right-0 w-full h-[60vh] bg-purple-600/5 blur-[120px] rounded-full mix-blend-screen" />
   </div>
 );
+import SpotlightCard from "@/components/ui/SpotlightCard";
+import GridBackground from "@/components/ui/GridBackground";
 
 // --- Main Page ---
 

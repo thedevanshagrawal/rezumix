@@ -70,6 +70,8 @@ const GridBackground = ({ isLight = false }) => (
 );
 
 // --- Main Page Component ---
+import SpotlightCard from "@/components/ui/SpotlightCard";
+import GridBackground from "@/components/ui/GridBackground";
 
 // --- Password Strength Meter Component ---
 
@@ -138,19 +140,14 @@ export default function Register() {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
 
-    // Track which fields the user has interacted with (show errors only after touch)
     const [touched, setTouched] = useState({ fullName: false, email: false, password: false });
-
-    // Show/hide password toggle
     const [showPassword, setShowPassword] = useState(false);
-
-    // Animation state
     const [loaded, setLoaded] = useState(false);
+
     useEffect(() => setLoaded(true), []);
 
     const router = useRouter();
 
-    // --- Validation logic ---
     const validation = useMemo(() => {
         const fullNameValid = fullName.trim().length >= 3;
         const emailValid = EMAIL_REGEX.test(email);
@@ -192,10 +189,8 @@ export default function Register() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Mark all fields as touched to show any remaining errors
         setTouched({ fullName: true, email: true, password: true });
 
-        // Prevent submission if validation fails
         if (!validation.isFormValid) {
             setError("Please fix the errors above before submitting.");
             return;
@@ -215,7 +210,6 @@ export default function Register() {
                 setSuccess("Registration successful! Redirecting...");
                 const registeredEmail = email.trim().toLowerCase();
                 
-                // Store 60s cooldown expiry in localStorage
                 const expiry = Date.now() + 60 * 1000;
                 localStorage.setItem(`otpCooldown_${registeredEmail}`, expiry.toString());
 
@@ -224,7 +218,6 @@ export default function Register() {
                 setPassword("");
                 setTouched({ fullName: false, email: false, password: false });
 
-                // Redirect to verify-otp with email query parameter after 2 seconds
                 setTimeout(() => {
                 router.push(`/verify-otp?email=${encodeURIComponent(registeredEmail)}`)
                 }, 2000);
@@ -280,7 +273,6 @@ export default function Register() {
                     {/* LEFT SIDE: Marketing Content */}
                     <div className={`transition-all duration-1000 ease-out ${loaded ? 'translate-x-0 opacity-100' : '-translate-x-8 opacity-0'}`}>
 
-                        {/* Animated Badge */}
                         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-400 text-xs font-medium mb-8">
                             <Sparkles className="w-3 h-3" />
                             <span>Join the AI Revolution</span>
@@ -348,7 +340,6 @@ export default function Register() {
                                                     : isLight ? "border-slate-200 focus:border-blue-500/50 focus:ring-blue-500/20" : "border-white/10 focus:border-blue-500/50 focus:ring-blue-500/50"
                                             }`}
                                         />
-                                        {/* Real-time indicator icon */}
                                         {touched.fullName && (
                                             <div className="absolute right-4 top-3.5">
                                                 {validation.fullName.valid ? (
@@ -359,7 +350,6 @@ export default function Register() {
                                             </div>
                                         )}
                                     </div>
-                                    {/* Inline error message */}
                                     {touched.fullName && validation.fullName.message && (
                                         <p className={`text-xs ml-1 flex items-center gap-1.5 ${isLight ? "text-red-600" : "text-red-400"}`}>
                                             <span className={`w-1 h-1 rounded-full flex-shrink-0 ${isLight ? "bg-red-600" : "bg-red-400"}`} />
@@ -407,76 +397,49 @@ export default function Register() {
 
                                 {/* Password */}
                                 <div className="space-y-2">
-                                    <label className={`text-xs font-medium ml-1 uppercase tracking-wider ${isLight ? "text-slate-600" : "text-slate-300"}`}>Password</label>
+                                    <label className="text-xs font-medium text-slate-300 ml-1 uppercase tracking-wider">Password</label>
                                     <div className="relative group">
-                                        <Lock className={`absolute left-4 top-3.5 w-5 h-5 transition-colors ${isLight ? "text-slate-400 group-focus-within:text-blue-500" : "text-slate-500 group-focus-within:text-blue-400"}`} />
+                                        <Lock className="absolute left-4 top-3.5 w-5 h-5 text-slate-500 group-focus-within:text-blue-400 transition-colors" />
                                         <input
-                                            type="password"
+                                            type={showPassword ? "text" : "password"}
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
                                             onBlur={() => handleBlur("password")}
                                             placeholder="Create a secure password"
-                                                className={`w-full border rounded-xl py-3 pl-12 pr-10 focus:outline-none focus:ring-1 transition-all ${isLight ? "bg-white text-slate-900 placeholder-slate-400" : "bg-[#050505] text-white placeholder-slate-600"} ${
+                                            className={`w-full bg-[#050505] border rounded-xl py-3 pl-12 pr-20 text-white placeholder-slate-600 focus:outline-none focus:ring-1 transition-all ${
                                                 touched.password && !validation.password.valid
-                                                    ? isLight ? "border-red-300 focus:border-red-500/50 focus:ring-red-500/20" : "border-red-500/50 focus:border-red-500/50 focus:ring-red-500/50"
+                                                    ? "border-red-500/50 focus:border-red-500/50 focus:ring-red-500/50"
                                                     : touched.password && validation.password.valid
-                                                    ? isLight ? "border-green-300 focus:border-green-500/50 focus:ring-green-500/20" : "border-green-500/30 focus:border-green-500/50 focus:ring-green-500/50"
-                                                    : isLight ? "border-slate-200 focus:border-blue-500/50 focus:ring-blue-500/20" : "border-white/10 focus:border-blue-500/50 focus:ring-blue-500/50"
+                                                    ? "border-green-500/30 focus:border-green-500/50 focus:ring-green-500/50"
+                                                    : "border-white/10 focus:border-blue-500/50 focus:ring-blue-500/50"
                                             }`}
                                         />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword((v) => !v)}
+                                            className={`absolute top-3.5 text-slate-500 hover:text-blue-400 transition-colors focus:outline-none ${
+                                                touched.password ? "right-12" : "right-4"
+                                            }`}
+                                            aria-label={showPassword ? "Hide password" : "Show password"}
+                                        >
+                                            {showPassword ? (
+                                                <EyeOff className="w-5 h-5" />
+                                            ) : (
+                                                <Eye className="w-5 h-5" />
+                                            )}
+                                        </button>
                                         {touched.password && (
                                             <div className="absolute right-4 top-3.5">
                                                 {validation.password.valid ? (
-                                                    <CheckCircle2 className={`w-5 h-5 ${isLight ? "text-green-600" : "text-green-400"}`} />
+                                                    <CheckCircle2 className="w-5 h-5 text-green-400" />
                                                 ) : (
-                                                    <AlertCircle className={`w-5 h-5 ${isLight ? "text-red-600" : "text-red-400"}`} />
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-medium text-slate-300 ml-1 uppercase tracking-wider">Password</label>
-                                        <div className="relative group">
-                                            <Lock className="absolute left-4 top-3.5 w-5 h-5 text-slate-500 group-focus-within:text-blue-400 transition-colors" />
-                                            <input
-                                                type={showPassword ? "text" : "password"}
-                                                value={password}
-                                                onChange={(e) => setPassword(e.target.value)}
-                                                onBlur={() => handleBlur("password")}
-                                                placeholder="Create a secure password"
-                                                className={`w-full bg-[#050505] border rounded-xl py-3 pl-12 pr-20 text-white placeholder-slate-600 focus:outline-none focus:ring-1 transition-all ${
-                                                    touched.password && !validation.password.valid
-                                                        ? "border-red-500/50 focus:border-red-500/50 focus:ring-red-500/50"
-                                                        : touched.password && validation.password.valid
-                                                        ? "border-green-500/30 focus:border-green-500/50 focus:ring-green-500/50"
-                                                        : "border-white/10 focus:border-blue-500/50 focus:ring-blue-500/50"
-                                                }`}
-                                            />
-                                            {/* Show/Hide toggle */}
-                                            <button
-                                                type="button"
-                                                onClick={() => setShowPassword((v) => !v)}
-                                                className={`absolute top-3.5 text-slate-500 hover:text-blue-400 transition-colors focus:outline-none ${
-                                                    touched.password ? "right-12" : "right-4"
-                                                }`}
-                                                aria-label={showPassword ? "Hide password" : "Show password"}
-                                            >
-                                                {showPassword ? (
-                                                    <EyeOff className="w-5 h-5" />
-                                                ) : (
-                                                    <Eye className="w-5 h-5" />
+                                                    <AlertCircle className="w-5 h-5 text-red-400" />
                                                 )}
-                                            </button>
-                                            {/* Validation indicator icon */}
-                                            {touched.password && (
-                                                <div className="absolute right-4 top-3.5">
-                                                    {validation.password.valid ? (
-                                                        <CheckCircle2 className="w-5 h-5 text-green-400" />
-                                                    ) : (
-                                                        <AlertCircle className="w-5 h-5 text-red-400" />
-                                                    )}
-                                                </div>
-                                            )}
-                                        </div>
-                                        {/* Password Strength Meter */}
-                                        <PasswordStrengthMeter password={password} />
+                                            </div>
+                                        )}
                                     </div>
+                                    <PasswordStrengthMeter password={password} />
+                                </div>
 
                                 {/* Status Messages */}
                                 {error && (

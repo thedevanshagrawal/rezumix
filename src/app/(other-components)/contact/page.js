@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { motion, useMotionTemplate, useMotionValue } from "framer-motion";
+import { motion } from "framer-motion";
 import {
     Mail,
     Clock,
@@ -59,6 +59,8 @@ const GridBackground = ({ isLight = false }) => (
         <div className={`absolute bottom-0 right-0 w-full h-[60vh] blur-[120px] rounded-full ${isLight ? "bg-purple-400/10 mix-blend-multiply" : "bg-purple-600/5 mix-blend-screen"}`} />
     </div>
 );
+import SpotlightCard from "@/components/ui/SpotlightCard";
+import GridBackground from "@/components/ui/GridBackground";
 
 // --- Main Component ---
 
