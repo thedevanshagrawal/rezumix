@@ -6,15 +6,49 @@ import MinimalTemplate from "@/components/(user-resume)/templates/MinimalTemplat
 import ExecutiveTemplate from "@/components/(user-resume)/templates/ExecutiveTemplate";
 import CreativeTemplate from "@/components/(user-resume)/templates/CreativeTemplate";
 
+function sanitizeUrl(url) {
+  if (!url) return "";
+  const trimmed = url.trim();
+  // Allow only http, https, or mailto links
+  if (/^(https?|mailto):/i.test(trimmed)) {
+    return trimmed;
+  }
+  // If it's a domain name without protocol, prefix it safely
+  if (/^[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/i.test(trimmed)) {
+    return `https://${trimmed}`;
+  }
+  return "";
+}
+
 export default function ResumePreview({ resumeData, activeTemplate, isSample }) {
+  // Deep-copy to avoid mutation of state directly
+  const sanitizedData = JSON.parse(JSON.stringify(resumeData));
+  
+  if (sanitizedData.personalInfo) {
+    sanitizedData.personalInfo.linkedin = sanitizeUrl(sanitizedData.personalInfo.linkedin);
+    sanitizedData.personalInfo.portfolio = sanitizeUrl(sanitizedData.personalInfo.portfolio);
+  }
+  if (Array.isArray(sanitizedData.projects)) {
+    sanitizedData.projects = sanitizedData.projects.map(p => ({
+      ...p,
+      link: sanitizeUrl(p.link)
+    }));
+  }
+  if (Array.isArray(sanitizedData.certifications)) {
+    sanitizedData.certifications = sanitizedData.certifications.map(c => ({
+      ...c,
+      url: sanitizeUrl(c.url)
+    }));
+  }
+
   const isEmpty =
     !isSample &&
-    !resumeData.personalInfo.fullName &&
-    !resumeData.personalInfo.email &&
-    resumeData.experience.length === 0 &&
-    resumeData.skills.technical.length === 0 &&
-    resumeData.skills.soft.length === 0 &&
-    resumeData.education.length === 0;
+    !sanitizedData.personalInfo.fullName &&
+    !sanitizedData.personalInfo.email &&
+    sanitizedData.experience.length === 0 &&
+    sanitizedData.skills.technical.length === 0 &&
+    sanitizedData.skills.soft.length === 0 &&
+    sanitizedData.education.length === 0;
 
   return (
     <div className="p-6 flex flex-col items-center bg-gray-950">
@@ -54,11 +88,11 @@ export default function ResumePreview({ resumeData, activeTemplate, isSample }) 
           style={{ width: "680px", maxWidth: "100%" }}
           className="shadow-2xl rounded-lg overflow-hidden"
         >
-          {activeTemplate === "modern" && <ModernTemplate data={resumeData} />}
-          {activeTemplate === "classic" && <ClassicTemplate data={resumeData} />}
-          {activeTemplate === "minimal" && <MinimalTemplate data={resumeData} />}
-          {activeTemplate === "executive" && <ExecutiveTemplate data={resumeData} />}
-          {activeTemplate === "creative" && <CreativeTemplate data={resumeData} />}
+          {activeTemplate === "modern" && <ModernTemplate data={sanitizedData} />}
+          {activeTemplate === "classic" && <ClassicTemplate data={sanitizedData} />}
+          {activeTemplate === "minimal" && <MinimalTemplate data={sanitizedData} />}
+          {activeTemplate === "executive" && <ExecutiveTemplate data={sanitizedData} />}
+          {activeTemplate === "creative" && <CreativeTemplate data={sanitizedData} />}
         </div>
       )}
     </div>
