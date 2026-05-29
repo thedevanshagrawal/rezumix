@@ -13,7 +13,8 @@ import {
     Check,
     X,
     Eye,
-    EyeOff
+    EyeOff,
+    AlertTriangle
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { apiClient } from "@/lib/api-client";
@@ -318,7 +319,7 @@ const Profile = () => {
                                                     touched.currentPassword && !validation.currentPassword.valid
                                                         ? "border-red-500/50 focus:border-red-500/50 focus:ring-red-500/50"
                                                         : touched.currentPassword && validation.currentPassword.valid
-                                                        ? "border-green-500/30 focus:border-green-500/50 focus:ring-green-500/50"
+                                                        ? "border-yellow-500/30 focus:border-yellow-500/50 focus:ring-yellow-500/50"
                                                         : "border-white/10 focus:border-indigo-500/50 focus:ring-indigo-500/50"
                                                 }`}
                                             />
@@ -341,7 +342,7 @@ const Profile = () => {
                                             {touched.currentPassword && (
                                                 <div className="absolute right-4 top-3.5">
                                                     {validation.currentPassword.valid ? (
-                                                        <CheckCircle className="w-5 h-5 text-green-400" />
+                                                    <AlertTriangle className="w-5 h-5 text-yellow-400" />
                                                     ) : (
                                                         <AlertCircle className="w-5 h-5 text-red-400" />
                                                     )}
@@ -443,7 +444,7 @@ const Profile = () => {
                                             {touched.confirmPassword && (
                                                 <div className="absolute right-4 top-3.5">
                                                     {validation.confirmPassword.valid ? (
-                                                        <CheckCircle className="w-5 h-5 text-green-400" />
+                                                    <CheckCircle className="w-5 h-5 text-green-400" />
                                                     ) : (
                                                         <AlertCircle className="w-5 h-5 text-red-400" />
                                                     )}

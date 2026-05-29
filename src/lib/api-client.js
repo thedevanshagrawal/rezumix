@@ -177,11 +177,9 @@ class ApiClient {
     }
 
     handleError(error) {
-        if (error.response && error.response.data) {
-            throw new Error(error.response.data.message || "Something went wrong")
-        } else {
-            throw new Error(error.message || "Unknown error")
-        }
+        // Preserve the original error so callers can inspect response details
+        // This allows UI components to extract specific error messages (e.g., incorrect current password)
+        throw error;
     }
 
 }
