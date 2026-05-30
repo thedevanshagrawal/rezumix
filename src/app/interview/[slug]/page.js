@@ -48,13 +48,13 @@ const InterviewSection = ({ params }) => {
     const [geminiOutput, setGeminiOutput] = useState([]);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [isVideoOn, setIsVideoOn] = useState(false);
-    const [isAudioOn, setIsAudioOn] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [userAnswer, setUserAnswer] = useState('');
     const [checkingAnswer, setCheckingAnswer] = useState(false);
     const [answerFeedback, setAnswerFeedback] = useState(null);
     const [showAllQuestions, setShowAllQuestions] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
+    const [mediaError, setMediaError] = useState(null);
 
     const webcamRef = useRef(null);
 
@@ -227,7 +227,12 @@ const InterviewSection = ({ params }) => {
 
                             <div className="relative w-full aspect-video bg-[#111] rounded-xl overflow-hidden border border-white/5 mb-4 group">
                                 {isVideoOn ? (
-                                    <WebCam ref={webcamRef} className="w-full h-full object-cover transform scale-x-[-1]" />
+                                    <WebCam 
+    ref={webcamRef} 
+    className="w-full h-full object-cover transform scale-x-[-1]"
+    onUserMediaError={(err) => setMediaError(err.message)}
+    onUserMedia={() => setMediaError(null)}
+/>
                                 ) : (
                                     <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-500 gap-2">
                                         <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center">
@@ -238,6 +243,14 @@ const InterviewSection = ({ params }) => {
                                 )}
                             </div>
 
+                            {!browserSupportsSpeechRecognition && (
+                                <div className="mb-3 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-xl flex items-center gap-2">
+                                    <MicOff className="w-4 h-4 text-yellow-400 flex-shrink-0" />
+                                    <p className="text-xs text-yellow-400">
+                                        Speech recognition is not supported in your browser. Please use Chrome for the best experience.
+                                    </p>
+                                </div>
+                            )}
                             <div className="grid grid-cols-2 gap-3">
                                 <Button
                                     onClick={toggleWebcam}
@@ -247,7 +260,8 @@ const InterviewSection = ({ params }) => {
                                 </Button>
                                 <Button
                                     onClick={toggleSpeechRecognition}
-                                    className={`w-full ${listening ? "bg-red-500/10 text-red-400 hover:bg-red-500/20" : "bg-white text-black hover:bg-slate-200"}`}
+                                    disabled={!browserSupportsSpeechRecognition}
+                                    className={`w-full ${listening ? "bg-red-500/10 text-red-400 hover:bg-red-500/20" : "bg-white text-black hover:bg-slate-200"} disabled:opacity-40 disabled:cursor-not-allowed`}
                                 >
                                     {listening ? <><Pause className="w-4 h-4 mr-2" /> Stop Rec</> : <><Mic className="w-4 h-4 mr-2" /> Record</>}
                                 </Button>
