@@ -1,5 +1,9 @@
 import { sendUserEmail } from "@/lib/contact-mail";
 import { NextResponse } from "next/server";
+import { connectDB } from "@/db/connectDB";
+import ContactLogModel from "@/models/ContactLogModel";
+
+const COOLDOWN_SECONDS = 300; // 5 minutes
 
 export async function POST(req) {
     try {
@@ -12,7 +16,31 @@ export async function POST(req) {
             );
         }
 
-        await sendUserEmail(useremail, name, message);
+        const sanitizedEmail = useremail.trim().toLowerCase();
+
+        await connectDB();
+
+        // Rate Limiting Check
+        const recentLog = await ContactLogModel.findOne({ email: sanitizedEmail });
+        if (recentLog) {
+            const secondsSinceLastSent = (Date.now() - new Date(recentLog.createdAt).getTime()) / 1000;
+            const remainingCooldown = Math.ceil(COOLDOWN_SECONDS - secondsSinceLastSent);
+
+            if (remainingCooldown > 0) {
+                const minutes = Math.ceil(remainingCooldown / 60);
+                return NextResponse.json(
+                    { success: false, error: `Please wait ${minutes} minute(s) before sending another message.` },
+                    { status: 429 }
+                );
+            }
+            
+            await ContactLogModel.deleteOne({ email: sanitizedEmail });
+        }
+
+        await sendUserEmail(sanitizedEmail, name, message);
+
+        await ContactLogModel.create({ email: sanitizedEmail });
+
         return NextResponse.json({ success: true });
 
     } catch (err) {
