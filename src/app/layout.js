@@ -3,6 +3,8 @@ import "./globals.css";
 import SessionWrapper from "@/components/SessionWrapper";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import ThemeToggleButton from "@/components/ThemeToggleButton";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 import { Toaster } from "sonner";
 
@@ -44,7 +46,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <title>
           Rezumix – AI Resume Analyzer, Career Recommendation, Mock Interview
@@ -89,6 +91,30 @@ export default function RootLayout({ children }) {
 
         <link rel="icon" href="/favicon.ico" />
 
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+(function () {
+  try {
+    var storedTheme = window.localStorage.getItem("rezumix-theme");
+    var theme = storedTheme === "light" || storedTheme === "dark" ? storedTheme : "dark";
+    var root = document.documentElement;
+    root.classList.toggle("dark", theme === "dark");
+    root.dataset.theme = theme;
+    root.style.colorScheme = theme;
+    if (document.body) {
+      document.body.classList.toggle("theme-dark", theme === "dark");
+      document.body.classList.toggle("theme-light", theme === "light");
+      document.body.style.colorScheme = theme;
+    }
+  } catch (error) {
+    document.documentElement.classList.add("dark");
+  }
+})();
+`,
+          }}
+        />
+
         {/* JSON-LD schema */}
 
         <script
@@ -129,26 +155,29 @@ export default function RootLayout({ children }) {
       </head>
 
       <body
-        className={`${geistSans.variable} ${geistMono.variable} bg-gradient-to-br from-gray-950 to-black text-white`}
+        className={`${geistSans.variable} ${geistMono.variable} theme-dark transition-colors duration-300`}
       >
 
-        <SessionWrapper>
+        <ThemeProvider>
+          <SessionWrapper>
 
-          <Toaster
-            position="top-right"
-            richColors
-            closeButton
-          />
+            <Toaster
+              position="top-right"
+              richColors
+              closeButton
+            />
 
-          <Navbar />
+            <Navbar />
+            <ThemeToggleButton />
 
-          <main className="min-h-screen">
-            {children}
-          </main>
+            <main className="min-h-screen">
+              {children}
+            </main>
 
-          <Footer />
+            <Footer />
 
-        </SessionWrapper>
+          </SessionWrapper>
+        </ThemeProvider>
 
       </body>
     </html>

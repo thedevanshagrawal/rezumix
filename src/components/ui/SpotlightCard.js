@@ -1,5 +1,6 @@
 "use client";
 import { motion, useMotionTemplate, useMotionValue } from "framer-motion";
+import { useThemeMode } from "@/components/ThemeProvider";
 
 export default function SpotlightCard({
     children,
@@ -8,6 +9,8 @@ export default function SpotlightCard({
 }) {
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
+    const { theme } = useThemeMode();
+    const isDark = theme === "dark";
 
     function handleMouseMove({ currentTarget, clientX, clientY }) {
         const { left, top } = currentTarget.getBoundingClientRect();
@@ -17,7 +20,7 @@ export default function SpotlightCard({
 
     return (
         <div
-            className={`relative border border-white/10 bg-neutral-900/50 overflow-hidden group ${className}`}
+            className={`relative overflow-hidden group transition-colors duration-300 ${isDark ? "border border-white/10 bg-neutral-900/50" : "border border-slate-200 bg-white shadow-lg shadow-slate-200/40"} ${className}`}
             onMouseMove={handleMouseMove}
         >
             <motion.div

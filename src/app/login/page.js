@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
@@ -20,6 +20,11 @@ import { apiClient } from "@/lib/api-client";
 import SpotlightCard from "@/components/ui/SpotlightCard";
 import GridBackground from "@/components/ui/GridBackground";
 
+const DEV_TEST_ACCOUNT = {
+  email: "theme.test@rezumix.dev",
+  password: "ThemeTest123!",
+};
+
 // --- Main Page ---
 
 export default function LoginPage() {
@@ -29,15 +34,47 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [emailTouched, setEmailTouched] = useState(false);
+  const hasAutoEnteredTestAccount = useRef(false);
 
   const { data: session } = useSession();
   const router = useRouter();
 
+  const handleUseTestAccount = useCallback(() => {
+    const devSession = {
+      user: {
+        id: "dev-theme-test",
+        name: "theme test",
+        fullName: "theme test",
+        email: DEV_TEST_ACCOUNT.email,
+        role: "user",
+      },
+      expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+    };
+
+    window.localStorage.setItem(
+      "rezumix-dev-session",
+      JSON.stringify(devSession)
+    );
+    document.cookie = "rezumix-dev-mode=1; path=/; max-age=86400; samesite=lax";
+    toast.success("Test account loaded. Redirecting to dashboard...");
+    router.replace("/dashboard");
+  }, [router]);
+
   useEffect(() => {
     if (session?.user) {
-      router.push("/dashboard");
+      router.replace("/dashboard");
+      return;
     }
-  }, [session, router]);
+
+    if (
+      process.env.NODE_ENV !== "production" &&
+      !hasAutoEnteredTestAccount.current &&
+      !loading
+    ) {
+      hasAutoEnteredTestAccount.current = true;
+      handleUseTestAccount();
+    }
+  }, [handleUseTestAccount, loading, router, session]);
 
   const isEmailValid = useMemo(() => {
     return EMAIL_REGEX.test(email);
@@ -263,6 +300,17 @@ export default function LoginPage() {
                 Forgot Password?
               </Link>
             </div>
+
+            {process.env.NODE_ENV !== "production" && (
+              <button
+                type="button"
+                onClick={handleUseTestAccount}
+                disabled={loading}
+                className="w-full py-3 rounded-xl border border-sky-500/30 bg-sky-500/10 text-sky-300 font-medium hover:bg-sky-500/15 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Use Test Account
+              </button>
+            )}
 
             {/* Button */}
 
