@@ -25,6 +25,9 @@ import {
 } from "lucide-react";
 import SpotlightCard from "@/components/ui/SpotlightCard";
 import GridBackground from "@/components/ui/GridBackground";
+import GoogleSignInButton, {
+    googleAuthErrorMessage,
+} from "@/components/auth/GoogleSignInButton";
 
 // --- Password Strength Meter Component ---
 
@@ -97,6 +100,20 @@ export default function Register() {
     const [loaded, setLoaded] = useState(false);
 
     useEffect(() => setLoaded(true), []);
+
+    // Surface Google OAuth failures: NextAuth redirects back with
+    // ?error=<code> when a provider sign-in is cancelled or fails.
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const errorCode = params.get("error");
+
+        if (errorCode) {
+            const message = googleAuthErrorMessage(errorCode);
+            setError(message);
+            toast.error(message);
+            window.history.replaceState({}, "", window.location.pathname);
+        }
+    }, []);
 
     const router = useRouter();
 
@@ -428,6 +445,22 @@ export default function Register() {
                                     )}
                                 </button>
                             </form>
+
+                            {/* Divider */}
+                            <div className="flex items-center gap-4 my-6">
+                                <div className="h-px flex-1 bg-white/10" />
+                                <span className="text-xs text-slate-500 uppercase tracking-wider">
+                                    Or
+                                </span>
+                                <div className="h-px flex-1 bg-white/10" />
+                            </div>
+
+                            {/* Continue with Google */}
+                            <GoogleSignInButton
+                                label="Sign up with Google"
+                                callbackUrl="/dashboard"
+                                onError={setError}
+                            />
 
                             {/* Footer */}
                             <div className="mt-8 text-center pt-6 border-t border-white/5">

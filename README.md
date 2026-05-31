@@ -122,19 +122,43 @@ npm install
 
 ### Environment Configuration
 
-Create a `.env.local` file in the root directory and add the following keys:
+Copy `.env.example` to `.env.local` and fill in the values:
 
 ```env
 MONGODB_URI=your_mongodb_connection_string
+
+# NextAuth.js (generate a secret with: openssl rand -base64 32)
+NEXTAUTH_SECRET=your_nextauth_secret
+NEXTAUTH_URL=http://localhost:3000
+
+# Google OAuth 2.0 ("Continue with Google")
+GOOGLE_CLIENT_ID=your_google_oauth_client_id
+GOOGLE_CLIENT_SECRET=your_google_oauth_client_secret
+
 CLOUDINARY_CLOUD_NAME=your_cloudinary_name
 CLOUDINARY_API_KEY=your_cloudinary_key
 CLOUDINARY_API_SECRET=your_cloudinary_secret
 EMAIL_USER=your_email_address
 EMAIL_PASS=your_email_password
-JWT_SECRET=your_secure_jwt_secret_key
+ACCESS_TOKEN_SECRET=your_access_token_secret
+REFRESH_TOKEN_SECRET=your_refresh_token_secret
 GEMINI_API_KEY=your_google_gemini_api_key
 
 ```
+
+#### Setting up Google OAuth (for "Continue with Google")
+
+1. Go to the [Google Cloud Console → Credentials](https://console.cloud.google.com/apis/credentials).
+2. Create (or select) a project, then **Create Credentials → OAuth client ID**.
+3. Choose **Web application** as the application type.
+4. Add the following **Authorized redirect URIs**:
+   - Development: `http://localhost:3000/api/auth/callback/google`
+   - Production: `https://your-domain.com/api/auth/callback/google`
+5. Copy the generated **Client ID** and **Client secret** into `GOOGLE_CLIENT_ID`
+   and `GOOGLE_CLIENT_SECRET` in your `.env.local`.
+
+The secret is only ever read server-side via `process.env` and is never exposed
+to the browser.
 
 ### Running Locally
 

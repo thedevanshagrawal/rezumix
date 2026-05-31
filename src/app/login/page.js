@@ -19,6 +19,9 @@ import { EMAIL_REGEX } from "@/lib/validation";
 import { apiClient } from "@/lib/api-client";
 import SpotlightCard from "@/components/ui/SpotlightCard";
 import GridBackground from "@/components/ui/GridBackground";
+import GoogleSignInButton, {
+  googleAuthErrorMessage,
+} from "@/components/auth/GoogleSignInButton";
 
 // --- Main Page ---
 
@@ -38,6 +41,22 @@ export default function LoginPage() {
       router.push("/dashboard");
     }
   }, [session, router]);
+
+  // Surface Google OAuth failures: NextAuth redirects back to
+  // /login?error=<code> when a provider sign-in is cancelled or fails.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const errorCode = params.get("error");
+
+    if (errorCode) {
+      const message = googleAuthErrorMessage(errorCode);
+      setError(message);
+      toast.error(message);
+
+      // Clean the query string so the error doesn't persist on reload.
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, []);
 
   const isEmailValid = useMemo(() => {
     return EMAIL_REGEX.test(email);
@@ -289,6 +308,23 @@ export default function LoginPage() {
               )}
             </button>
           </form>
+
+          {/* Divider */}
+
+          <div className="flex items-center gap-4 my-6">
+            <div className="h-px flex-1 bg-white/10" />
+            <span className="text-xs text-slate-500 uppercase tracking-wider">
+              Or
+            </span>
+            <div className="h-px flex-1 bg-white/10" />
+          </div>
+
+          {/* Continue with Google */}
+
+          <GoogleSignInButton
+            callbackUrl="/dashboard"
+            onError={setError}
+          />
 
           {/* Footer */}
 
