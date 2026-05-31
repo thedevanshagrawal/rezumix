@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/db/connectDB";
 import ContactLogModel from "@/models/ContactLogModel";
 
-const COOLDOWN_SECONDS = 300; // 5 minutes
+const COOLDOWN_SECONDS = 900; // 15 minutes
 
 export async function POST(req) {
     try {
