@@ -1,10 +1,13 @@
 import { connectDB } from "@/db/connectDB"
 import mockInterviewModel from "@/models/mockInterview.model";
 import { NextResponse } from "next/server";
-
+import { requireSession } from "@/lib/auth-guard";
 
 export async function GET(req) {
     try {
+        const auth = await requireSession();
+        if (auth.error) return auth.error;
+
         await connectDB()
 
         const { searchParams } = new URL(req.url)

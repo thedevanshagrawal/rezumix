@@ -1,6 +1,7 @@
 import { PersonalityWithGemini } from "@/utils/PersonalityWithGemini"
 import { NextResponse } from "next/server"
 import OpenAI from "openai";
+import { requireSession } from "@/lib/auth-guard";
 
 const openai = new OpenAI({
     apiKey: process.env.GEMINI_API_KEY,
@@ -9,6 +10,8 @@ const openai = new OpenAI({
 
 export async function POST(req) {
     try {
+        const auth = await requireSession();
+        if (auth.error) return auth.error;
 
         const { answers, name } = await req.json()
 

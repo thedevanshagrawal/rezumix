@@ -1,15 +1,12 @@
 import { connectDB } from "@/db/connectDB"
 import OTPModel from "@/models/OTPModel";
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { requireAdmin } from "@/lib/auth-guard";
 
 export async function GET() {
     try {
-        const session = await getServerSession(authOptions);
-        if (!session || session.user.role !== "admin") {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
+        const auth = await requireAdmin();
+        if (auth.error) return auth.error;
 
         await connectDB()
         const otp = await OTPModel.find({})
@@ -27,10 +24,8 @@ export async function GET() {
 
 export async function DELETE(request) {
     try {
-        const session = await getServerSession(authOptions);
-        if (!session || session.user.role !== "admin") {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
+        const auth = await requireAdmin();
+        if (auth.error) return auth.error;
 
         const { searchParams } = new URL(request.url)
         const email = searchParams.get("email")

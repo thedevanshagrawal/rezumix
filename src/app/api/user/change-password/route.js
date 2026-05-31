@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
-import { getToken } from "next-auth/jwt";
+import { requireSession } from "@/lib/auth-guard";
 
 import userModel from "@/models/userModel";
 import { connectDB } from "@/db/connectDB";
@@ -32,13 +32,9 @@ export async function POST(req) {
     const { currentPassword, newPassword, confirmPassword } =
       body.passwordChange;
 
-    // Authenticate user from NextAuth session
-    const token = await getToken({
-      req,
-      secret: process.env.NEXTAUTH_SECRET,
-    });
-
-    const userId = token?.id;
+    const auth = await requireSession();
+    if (auth.error) return auth.error;
+    const { session } = auth;
 
     if (
       !isPlainString(currentPassword) ||
@@ -60,21 +56,7 @@ export async function POST(req) {
       );
     }
 
-    if (!userId) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Unauthorized",
-          errors: [
-            {
-              field: "general",
-              messages: ["You must be logged in to change password"],
-            },
-          ],
-        },
-        { status: 401 }
-      );
-    }
+
 
     // Validate passwords match
     if (newPassword !== confirmPassword) {
@@ -112,8 +94,7 @@ export async function POST(req) {
       );
     }
 
-    // Find logged-in user
-    const user = await userModel.findById(userId);
+    const user = await userModel.findOne({ email: session.user.email });
 
     if (!user) {
       return NextResponse.json(

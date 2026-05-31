@@ -2,11 +2,16 @@ import { connectDB } from "@/db/connectDB"
 import mockInterviewModel from "@/models/mockInterview.model"
 import { MockGemini } from "@/utils/mockGemini"
 import { NextResponse } from "next/server"
+import { requireSession } from "@/lib/auth-guard";
 
 
 export async function POST(req) {
     try {
-        const { jobRole, jobDescription, experience, techStack, userEmail } = await req.json()
+        const auth = await requireSession();
+        if (auth.error) return auth.error;
+        const { session } = auth;
+
+        const { jobRole, jobDescription, experience, techStack } = await req.json()
 
         if (!jobRole || !jobDescription || !experience || !techStack) {
             return NextResponse.json({ message: "All fields are required" }, { status: 400 })
@@ -46,7 +51,7 @@ export async function POST(req) {
             experience,
             techStack,
             geminiResponse,
-            userEmail: userEmail || "xyz@gmail.com"
+            userEmail: session.user.email
         })
 
         if (!saveDB) {
@@ -70,12 +75,13 @@ export async function POST(req) {
 
 export async function GET(req) {
     try {
-        const { searchParams } = new URL(req.url);
-        const userEmail = searchParams.get("email");
+        const auth = await requireSession();
+        if (auth.error) return auth.error;
+        const { session } = auth;
 
         await connectDB()
 
-        const response = await mockInterviewModel.find({ userEmail })
+        const response = await mockInterviewModel.find({ userEmail: session.user.email })
 
         if (!response) {
             return NextResponse.json({ message: "No data is available" }, { status: 400 })

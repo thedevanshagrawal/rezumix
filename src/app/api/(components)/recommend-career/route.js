@@ -2,8 +2,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/db/connectDB"
 import recommendModel from "@/models/recommend.model";
 import OpenAI from "openai";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { requireSession } from "@/lib/auth-guard";
 
 const openai = new OpenAI({
     apiKey: process.env.GEMINI_API_KEY,
@@ -12,10 +11,9 @@ const openai = new OpenAI({
 
 export async function POST(req) {
     try {
-        const session = await getServerSession(authOptions);
-        if (!session) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
+        const auth = await requireSession();
+        if (auth.error) return auth.error;
+        const { session } = auth;
 
         const getData = await req.json();
 
@@ -156,10 +154,9 @@ export async function POST(req) {
 
 export async function GET() {
     try {
-        const session = await getServerSession(authOptions);
-        if (!session) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
+        const auth = await requireSession();
+        if (auth.error) return auth.error;
+        const { session } = auth;
 
         await connectDB()
 
