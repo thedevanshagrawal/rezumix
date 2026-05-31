@@ -8,8 +8,7 @@ import resumeModel from "@/models/resume.model";
 import { connectDB } from "@/db/connectDB"
 import { GeminiOpenAI } from "@/utils/geminiopenai";
 import OpenAI from "openai";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { requireSession, requireOwnership } from "@/lib/auth-guard";
 
 // Cloudinary Config
 cloudinary.config({
@@ -115,10 +114,9 @@ ${resumeText}
 
 export async function POST(request) {
     try {
-        const session = await getServerSession(authOptions);
-        if (!session) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
+        const auth = await requireSession();
+        if (auth.error) return auth.error;
+        const { session } = auth;
 
         await connectDB();
 
@@ -235,6 +233,10 @@ export async function POST(request) {
 
 export async function DELETE(req) {
     try {
+        const auth = await requireSession();
+        if (auth.error) return auth.error;
+        const { session } = auth;
+
         const { searchParams } = new URL(req.url);
         const resumeId = searchParams.get("id");
 
@@ -243,6 +245,15 @@ export async function DELETE(req) {
         }
 
         await connectDB();
+        
+        const resume = await resumeModel.findById(resumeId);
+        if (!resume) {
+            return NextResponse.json({ message: "Resume not found" }, { status: 404 });
+        }
+
+        const ownershipCheck = requireOwnership(session, resume.userEmail);
+        if (ownershipCheck.error) return ownershipCheck.error;
+
         await resumeModel.findByIdAndDelete(resumeId);
 
         return NextResponse.json({ success: true, message: "Resume deleted successfully" }, { status: 200 });
@@ -254,10 +265,9 @@ export async function DELETE(req) {
 
 export async function GET() {
     try {
-        const session = await getServerSession(authOptions);
-        if (!session) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
+        const auth = await requireSession();
+        if (auth.error) return auth.error;
+        const { session } = auth;
 
         await connectDB();
 

@@ -1,8 +1,12 @@
 import { InterviewAnswer } from "@/utils/InterviewAnswer";
 import { NextResponse } from "next/server";
+import { requireSession } from "@/lib/auth-guard";
 
 export async function POST(req) {
     try {
+        const auth = await requireSession();
+        if (auth.error) return auth.error;
+
         const { userAnswer, question } = await req.json();
 
         const geminiResponseRaw = await InterviewAnswer(userAnswer, question);

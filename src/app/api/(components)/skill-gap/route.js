@@ -7,8 +7,7 @@ import mammoth from "mammoth";
 import { extractResumeDetails } from "@/utils/extractResumeData";
 import skillGapModel from "@/models/skillGap.model";
 import OpenAI from "openai";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { requireSession } from "@/lib/auth-guard";
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -45,10 +44,9 @@ const openai = new OpenAI({
 
 export async function POST(req) {
     try {
-        const session = await getServerSession(authOptions);
-        if (!session) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
+        const auth = await requireSession();
+        if (auth.error) return auth.error;
+        const { session } = auth;
 
         await connectDB();
 
@@ -172,10 +170,9 @@ export async function POST(req) {
 
 export async function GET() {
     try {
-        const session = await getServerSession(authOptions);
-        if (!session) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
+        const auth = await requireSession();
+        if (auth.error) return auth.error;
+        const { session } = auth;
 
         await connectDB();
 

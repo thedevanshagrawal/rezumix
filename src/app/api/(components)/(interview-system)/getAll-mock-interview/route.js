@@ -1,10 +1,13 @@
 import { connectDB } from "@/db/connectDB";
 import mockInterviewModel from "@/models/mockInterview.model";
 import { NextResponse } from "next/server";
-
+import { requireAdmin } from "@/lib/auth-guard";
 
 export async function GET() {
     try {
+        const auth = await requireAdmin();
+        if (auth.error) return auth.error;
+
         await connectDB()
 
         const mockInterviews = await mockInterviewModel.find()
