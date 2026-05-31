@@ -27,9 +27,8 @@ export async function POST(req) {
             const remainingCooldown = Math.ceil(COOLDOWN_SECONDS - secondsSinceLastSent);
 
             if (remainingCooldown > 0) {
-                const minutes = Math.ceil(remainingCooldown / 60);
                 return NextResponse.json(
-                    { success: false, error: `Please wait ${minutes} minute(s) before sending another message.` },
+                    { success: false, error: "You've sent a message recently.Please try again later." },
                     { status: 429 }
                 );
             }
