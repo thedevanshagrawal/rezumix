@@ -227,12 +227,25 @@ const InterviewSection = ({ params }) => {
 
                             <div className="relative w-full aspect-video bg-[#111] rounded-xl overflow-hidden border border-white/5 mb-4 group">
                                 {isVideoOn ? (
-                                    <WebCam 
-    ref={webcamRef} 
-    className="w-full h-full object-cover transform scale-x-[-1]"
-    onUserMediaError={(err) => setMediaError(err.message)}
-    onUserMedia={() => setMediaError(null)}
-/>
+                                    <>
+                                        <WebCam 
+                                            ref={webcamRef} 
+                                            className="w-full h-full object-cover transform scale-x-[-1]"
+                                            onUserMediaError={(err) => setMediaError(err.message)}
+                                            onUserMedia={() => setMediaError(null)}
+                                        />
+                                        {mediaError && (
+                                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#111] gap-3 p-4">
+                                                <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center">
+                                                    <VideoOff className="w-8 h-8 text-red-400" />
+                                                </div>
+                                                <p className="text-xs text-red-400 font-medium">Camera access denied</p>
+                                                <p className="text-xs text-slate-500 text-center">
+                                                    Please allow camera access in your browser settings and refresh the page.
+                                                </p>
+                                            </div>
+                                        )}
+                                    </>
                                 ) : (
                                     <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-500 gap-2">
                                         <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center">
