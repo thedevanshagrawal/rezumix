@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 
 import userModel from "@/models/userModel";
@@ -70,6 +71,16 @@ export const authOptions = {
         }
       },
     }),
+
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      authorization: {
+        params: {
+          prompt: "select_account",
+        },
+      },
+    }),
   ],
 
   session: {
@@ -79,7 +90,93 @@ export const authOptions = {
   },
 
   callbacks: {
-    async jwt({ token, user }) {
+    // Runs before a sign-in completes. For Google we look the user up by
+    // email and either create a new account or link Google to an existing
+    // one. Returning false (or throwing) aborts the sign-in.
+    async signIn({ user, account, profile }) {
+      if (account?.provider !== "google") {
+        return true;
+      }
+
+      // Google must have verified the email before we trust it.
+      if (profile && profile.email_verified === false) {
+        return false;
+      }
+
+      try {
+        await connectDB();
+
+        const email = (user.email || "").trim().toLowerCase();
+
+        if (!email) {
+          return false;
+        }
+
+        const existingUser = await userModel.findOne({ email });
+
+        if (!existingUser) {
+          // New user → create a Google-based account. No password is set;
+          // Google has already verified ownership of the email.
+          await userModel.create({
+            fullName: user.name || email.split("@")[0],
+            email,
+            provider: "google",
+            googleId: profile?.sub || account.providerAccountId,
+            isVerified: true,
+            role: "user",
+          });
+
+          return true;
+        }
+
+        // Existing account (likely created with a password). Link Google to
+        // it without touching the password so credentials login keeps working.
+        let needsSave = false;
+
+        if (!existingUser.googleId) {
+          existingUser.googleId = profile?.sub || account.providerAccountId;
+          needsSave = true;
+        }
+
+        if (!existingUser.isVerified) {
+          // Google has verified the email, so trust it for this account too.
+          existingUser.isVerified = true;
+          needsSave = true;
+        }
+
+        if (needsSave) {
+          await existingUser.save();
+        }
+
+        return true;
+      } catch (error) {
+        console.error("Error during Google sign-in:", error.message);
+        return false;
+      }
+    },
+
+    async jwt({ token, user, account }) {
+      // Google sign-in: the `user`/`profile` here is the Google profile, not
+      // our DB record, so load the DB user to attach the Mongo _id and role.
+      if (account?.provider === "google") {
+        await connectDB();
+
+        const dbUser = await userModel.findOne({
+          email: (user?.email || token.email || "").trim().toLowerCase(),
+        });
+
+        if (dbUser) {
+          token.id = dbUser._id.toString();
+          token.fullName = dbUser.fullName;
+          token.email = dbUser.email;
+          token.role = dbUser.role;
+          token.accessToken = "";
+        }
+
+        return token;
+      }
+
+      // Credentials sign-in: `authorize` already returned our session shape.
       if (user) {
         token.id = user.id;
         token.fullName = user.name;

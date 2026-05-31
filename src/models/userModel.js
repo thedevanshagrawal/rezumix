@@ -22,6 +22,23 @@ const userSchema = new mongoose.Schema(
       trim: true,
     },
 
+    // Authentication provider used to create the account.
+    // "credentials" = email/password, "google" = Google OAuth.
+    provider: {
+      type: String,
+      enum: ["credentials", "google"],
+      default: "credentials",
+    },
+
+    // Google account subject id (the `sub` claim). Sparse so multiple
+    // credentials-only users (which leave this unset) don't collide on null.
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true,
+      trim: true,
+    },
+
     isVerified: {
       type: Boolean,
       default: false,
