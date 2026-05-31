@@ -24,6 +24,7 @@ export default function ContactPage() {
     const [useremail, setUserEmail] = useState("");
     const [message, setMessage] = useState("");
     const [status, setStatus] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
     const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e) => {
@@ -39,6 +40,11 @@ export default function ContactPage() {
             }
         } catch (error) {
             setStatus("error");
+            if (error.response?.data?.error) {
+                setErrorMessage(error.response.data.error);
+            } else {
+                setErrorMessage("Something went wrong. Please try again.");
+            }
         } finally {
             setLoading(false);
             setTimeout(() => setStatus(""), 5000); // ✅ Auto-clear status after 5s
@@ -224,8 +230,8 @@ export default function ContactPage() {
                                     animate={{ opacity: 1, y: 0 }}
                                     className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3 text-red-400"
                                 >
-                                    <AlertCircle className="w-5 h-5" />
-                                    <span className="text-sm font-medium">Something went wrong. Please try again.</span>
+                                    <AlertCircle className="w-5 h-5 shrink-0" />
+                                    <span className="text-sm font-medium">{errorMessage}</span>
                                 </motion.div>
                             )}
 
