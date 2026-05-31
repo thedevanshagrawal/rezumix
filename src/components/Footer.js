@@ -2,20 +2,23 @@
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
+import { useThemeMode } from "./ThemeProvider";
 
 const Footer = () => {
     const { data: session } = useSession()
+    const { theme } = useThemeMode();
+    const isDark = theme === "dark";
 
     // Optional: Hide footer if session exists (Dashboard usually has its own layout)
     if (session) return null;
 
     return (
-        <footer className="relative bg-[#050505] border-t border-white/5 overflow-hidden pt-20 pb-10">
+        <footer className={`relative overflow-hidden pt-20 pb-10 border-t ${isDark ? "bg-[#050505] border-white/5" : "bg-slate-50 border-slate-200"}`}>
 
             {/* Background Grid Pattern (Matching Home Page) */}
             <div className="absolute inset-0 z-0 pointer-events-none opacity-50">
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:32px_32px]" />
-                <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-600/5 blur-[120px] rounded-full" />
+                <div className={`absolute inset-0 bg-[size:32px_32px] ${isDark ? "bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)]" : "bg-[linear-gradient(to_right,#cbd5e11f_1px,transparent_1px),linear-gradient(to_bottom,#cbd5e11f_1px,transparent_1px)]"}`} />
+                <div className={`absolute bottom-0 left-0 w-[500px] h-[500px] blur-[120px] rounded-full ${isDark ? "bg-blue-600/5" : "bg-sky-500/10"}`} />
             </div>
 
             <div className="relative z-10 container mx-auto px-6 max-w-7xl">
@@ -26,7 +29,7 @@ const Footer = () => {
                         <Link href="/">
                             <Image src={'/rezumix_logo.png'} alt='Rezumix' width={200} height={50} className="w-40 opacity-90" />
                         </Link>
-                        <p className="text-slate-400 max-w-sm leading-relaxed">
+                        <p className={`${isDark ? "text-slate-400" : "text-slate-600"} max-w-sm leading-relaxed`}>
                             Empowering careers with AI intelligence. Stop guessing and start getting hired with data-driven insights.
                         </p>
 
@@ -42,7 +45,7 @@ const Footer = () => {
                                     key={idx}
                                     href={social.href}
                                     target="_blank"
-                                    className="w-10 h-10 rounded-full bg-white/5 border border-white/5 flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all"
+                                    className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all ${isDark ? "bg-white/5 border-white/5 text-slate-400 hover:text-white hover:bg-white/10" : "bg-white border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-100"}`}
                                 >
                                     {/* Simple mapping for Icons based on index/name or just SVG directly */}
                                     <SocialIcon name={social.icon} />
@@ -53,7 +56,7 @@ const Footer = () => {
 
                     {/* Links Columns */}
                     <div>
-                        <h3 className="text-white font-bold mb-6">Product</h3>
+                        <h3 className={`${isDark ? "text-white" : "text-slate-900"} font-bold mb-6`}>Product</h3>
                         <ul className="space-y-4">
                             {[
                                 "Resume Checker",
@@ -63,7 +66,7 @@ const Footer = () => {
                                 "Skill Analysis"
                             ].map((item, i) => (
                                 <li key={i}>
-                                    <Link href="/login" className="text-slate-400 hover:text-blue-400 transition-colors text-sm">
+                                    <Link href="/login" className={`${isDark ? "text-slate-400 hover:text-blue-400" : "text-slate-600 hover:text-sky-600"} transition-colors text-sm`}>
                                         {item}
                                     </Link>
                                 </li>
@@ -72,7 +75,7 @@ const Footer = () => {
                     </div>
 
                     <div>
-                        <h3 className="text-white font-bold mb-6">Company</h3>
+                        <h3 className={`${isDark ? "text-white" : "text-slate-900"} font-bold mb-6`}>Company</h3>
                         <ul className="space-y-4">
                             {[
                                 { label: "About", href: "/about" },
@@ -86,14 +89,14 @@ const Footer = () => {
                                         <a
                                             href={href}
                                             download
-                                            className="text-gray-400 hover:text-emerald-400 transition-colors duration-300"
+                                            className={`${isDark ? "text-gray-400 hover:text-emerald-400" : "text-slate-600 hover:text-emerald-600"} transition-colors duration-300`}
                                         >
                                             {label}
                                         </a>
                                     ) : (
                                         <Link
                                             href={href}
-                                            className="text-gray-400 hover:text-pink-400 transition-colors duration-300"
+                                            className={`${isDark ? "text-gray-400 hover:text-pink-400" : "text-slate-600 hover:text-pink-600"} transition-colors duration-300`}
                                         >
                                             {label}
                                         </Link>
@@ -105,12 +108,12 @@ const Footer = () => {
                 </div>
 
                 {/* Bottom Bar */}
-                <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                    <p className="text-slate-600 text-sm">© {new Date().getFullYear()} Rezumix Inc. All rights reserved.</p>
+                <div className={`border-t pt-8 flex flex-col md:flex-row justify-between items-center gap-4 ${isDark ? "border-white/5" : "border-slate-200"}`}>
+                    <p className={`${isDark ? "text-slate-600" : "text-slate-500"} text-sm`}>© {new Date().getFullYear()} Rezumix Inc. All rights reserved.</p>
 
                     {/* Big Brand Text (Subtle) */}
                     <div className="hidden md:block">
-                        <span className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-slate-900 bg-clip-text text-transparent select-none">
+                        <span className={`text-2xl font-bold bg-clip-text text-transparent select-none ${isDark ? "bg-gradient-to-r from-slate-800 to-slate-900" : "bg-gradient-to-r from-slate-300 to-slate-400"}`}>
                             REZUMIX
                         </span>
                     </div>
